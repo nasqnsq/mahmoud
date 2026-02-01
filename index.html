@@ -2,171 +2,334 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محاسبة محمود PRO - النسخة النهائية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبة محمود الشخصية</title>
     <style>
-        :root { --p: #4f46e5; --g: #10b981; --r: #ef4444; --bg: #f8fafc; --card: #ffffff; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
-        .container { max-width: 480px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h2 { margin: 0; color: var(--p); font-weight: 800; }
-        .main-stats { background: linear-gradient(135deg, var(--p), #6366f1); color: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); text-align: center; margin-bottom: 15px; }
-        .sub-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .val { display: block; font-weight: 800; font-size: 1.2rem; margin-top: 5px; }
-        .form-card { background: var(--card); padding: 20px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2ff; }
-        .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        input, select { flex: 1; padding: 14px; border: 1px solid #e2e8f0; border-radius: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; }
-        .btn-add { width: 100%; background: var(--p); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
-        .list-container { background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
-        .del-btn { color: #cbd5e1; background: none; border: none; font-size: 1.3rem; margin-right: 15px; cursor: pointer; }
-        .cloud-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        .btn-cloud { padding: 15px; border-radius: 15px; border: none; font-weight: 700; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
-        .up { background: #4285F4; color: white; }
-        .down { background: #34a853; color: white; }
-        #status { text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 10px; }
+        :root {
+            --primary: #2563eb;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        /* البطاقات والشبكة */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .balance-usd { font-size: 1.5em; font-weight: bold; color: var(--primary); }
+        .balance-try { font-size: 1.5em; font-weight: bold; color: var(--text); }
+
+        /* الأزرار والنماذج */
+        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1em; }
+        button:hover { opacity: 0.9; }
+        button.secondary { background: #9ca3af; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        
+        /* القائمة */
+        .tx-list { list-style: none; padding: 0; }
+        .tx-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; align-items: center; }
+        .tx-amount.income { color: var(--success); }
+        .tx-amount.expense { color: var(--danger); }
+
+        /* التنبيهات */
+        #status-msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 20px; background: #333; color: white; display: none; z-index: 1000; }
+        .loading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h2>محاسبة محمود PRO 📁</h2></div>
-    <div class="main-stats">
-        <small>الصافي المتوفر (دولار)</small>
-        <span class="val" id="netUSD" style="font-size: 2.2rem;">0 $</span>
-    </div>
-    <div class="sub-stats">
-        <div class="stat-box">
-            <small style="color:var(--g)">إجمالي القبض ($)</small>
-            <span class="val" id="totalIn" style="color:var(--g)">0 $</span>
-        </div>
-        <div class="stat-box">
-            <small style="color:var(--r)">إجمالي الخرج ($)</small>
-            <span class="val" id="totalOut" style="color:var(--r)">0 $</span>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>📊 محاسبة محمود</h2>
+        <div>
+            <button id="authBtn" onclick="handleAuthClick()">ربط Google Drive</button>
+            <button id="syncBtn" class="secondary" onclick="syncData()" style="display: none;">مزامنة 🔄</button>
         </div>
     </div>
-    <div class="form-card">
-        <div class="input-row">
-            <input type="date" id="date">
-            <select id="currency"><option value="USD">دولار $</option><option value="TRY">تركي ₺</option></select>
+
+    <div class="stats-grid">
+        <div class="card">
+            <div>الصافي (دولار)</div>
+            <div class="balance-usd" id="net-usd">0 $</div>
         </div>
-        <div class="input-row">
-            <select id="type"><option value="in">📥 دخل (قبض)</option><option value="out">📤 خرج (صرف)</option></select>
-            <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
+        <div class="card">
+            <div>الصافي (ليرة)</div>
+            <div class="balance-try" id="net-try">0 ₺</div>
         </div>
-        <input type="text" id="desc" placeholder="البيان..." style="width:100%; box-sizing:border-box; margin-bottom:12px;">
-        <button class="btn-add" onclick="addNew()">تسجيل العملية</button>
     </div>
-    <div class="list-container" id="mainList"></div>
-    <div class="cloud-actions">
-        <button class="btn-cloud up" onclick="sync('upload')">☁️ رفع للدرايف</button>
-        <button class="btn-cloud down" onclick="sync('download')">📥 استيراد بياناتي</button>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h3>تسجيل عملية جديدة</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" id="desc" placeholder="الوصف (مثال: راتب، تسوق)">
+            <input type="number" id="amount" placeholder="المبلغ">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <select id="currency">
+                <option value="USD">دولار ($)</option>
+                <option value="TRY">ليرة (₺)</option>
+            </select>
+            <select id="type">
+                <option value="expense">مصروف (خرج)</option>
+                <option value="income">إيراد (دخل)</option>
+            </select>
+        </div>
+        <button onclick="addTransaction()" style="width: 100%">إضافة</button>
     </div>
-    <div id="status">جاهز للمزامنة</div>
+
+    <div class="card">
+        <h3>آخر العمليات</h3>
+        <ul id="tx-list" class="tx-list"></ul>
+    </div>
 </div>
 
+<div id="status-msg"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+
 <script>
-    const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com';
-    const DB_NAME = 'mahmoud_data_final.json';
-    let db = JSON.parse(localStorage.getItem('mahmoud_v5')) || [];
-    document.getElementById('date').valueAsDate = new Date();
+    // --- إعدادات النظام ---
+    // تم إضافة Client ID الخاص بك هنا
+    const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com'; 
+    
+    // ⚠️ تنبيه: يجب وضع مفتاح API الخاص بك هنا لكي يعمل الكود
+    const API_KEY = 'YOUR_API_KEY_HERE'; 
 
-    function render() {
-        const list = document.getElementById('mainList');
-        list.innerHTML = '';
-        let s = { inD: 0, outD: 0, netT: 0 };
-        db.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach((item, i) => {
-            let v = parseFloat(item.amt);
-            if(item.cur === 'USD') { (item.type === 'in') ? s.inD += v : s.outD += v; }
-            else { (item.type === 'in') ? s.netT += v : s.netT -= v; }
-            list.innerHTML += `<div class="list-item"><div class="item-desc"><b>${item.desc}</b><small>${item.date}</small></div><div style="display:flex; align-items:center;"><span class="item-amt" style="color:${item.type==='in'?'var(--g)':'var(--r)'}">${v.toLocaleString()}${item.cur==='USD'?'$':'₺'}</span><button class="del-btn" onclick="remove(${i})">×</button></div></div>`;
-        });
-        document.getElementById('netUSD').innerText = (s.inD - s.outD).toLocaleString() + ' $';
-        document.getElementById('totalIn').innerText = s.inD.toLocaleString() + ' $';
-        document.getElementById('totalOut').innerText = s.outD.toLocaleString() + ' $';
-        localStorage.setItem('mahmoud_v5', JSON.stringify(db));
+    const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
+    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+    const FILE_NAME = 'mahmoud_data_final.json';
+
+    let tokenClient;
+    let gapiInited = false;
+    let gisInited = false;
+
+    // --- إدارة البيانات المحلية ---
+    let appData = JSON.parse(localStorage.getItem('mahmoudData')) || { transactions: [] };
+
+    function saveDataLocally() {
+        localStorage.setItem('mahmoudData', JSON.stringify(appData));
+        renderUI();
     }
 
-    function addNew() {
-        const amt = document.getElementById('amount').value;
+    function addTransaction() {
         const desc = document.getElementById('desc').value;
-        if(!amt || !desc) return alert('عبي الخانات خيو!');
-        db.unshift({ date: document.getElementById('date').value, cur: document.getElementById('currency').value, type: document.getElementById('type').value, amt, desc });
-        document.getElementById('amount').value = ''; document.getElementById('desc').value = '';
-        render();
-    }
+        const amount = parseFloat(document.getElementById('amount').value);
+        const currency = document.getElementById('currency').value;
+        const type = document.getElementById('type').value;
 
-    function remove(i) { if(confirm('حذف؟')) { db.splice(i,1); render(); } }
+        if (!desc || isNaN(amount)) {
+            showToast('الرجاء إدخال بيانات صحيحة', true);
+            return;
+        }
 
-    async function sync(mode) {
-        document.getElementById('status').innerText = '🔄 جاري الاتصال...';
-        const client = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: 'https://www.googleapis.com/auth/drive.file',
-            callback: async (res) => {
-                if (!res.access_token) {
-                    document.getElementById('status').innerText = '❌ فشل الحصول على تصريح';
-                    return;
-                }
-                const token = res.access_token;
-                try {
-                    // البحث عن الملف مع التأكد من وجود مصفوفة Files
-                    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DB_NAME}' and trashed=false`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const search = await response.json();
-                    const fileFound = (search.files && search.files.length > 0) ? search.files[0] : null;
-
-                    if (mode === 'upload') {
-                        const metadata = { name: DB_NAME, mimeType: 'application/json' };
-                        const fileBlob = new Blob([JSON.stringify(db)], { type: 'application/json' });
-                        const form = new FormData();
-                        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-                        form.append('file', fileBlob);
-
-                        let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-                        let method = 'POST';
-
-                        if (fileFound) {
-                            url = `https://www.googleapis.com/upload/drive/v3/files/${fileFound.id}?uploadType=multipart`;
-                            method = 'PATCH';
-                        }
-
-                        const upRes = await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: form });
-                        if (upRes.ok) {
-                            document.getElementById('status').innerText = '✅ تم الحفظ بنجاح';
-                            alert('تم الرفع للدرايف!');
-                        } else { throw new Error('فشل الرفع'); }
-
-                    } else { // الاستيراد
-                        if (!fileFound) {
-                            alert('خيو محمود، ما في أي ملف محفوظ بالدرايف لسه!');
-                            document.getElementById('status').innerText = '⚠️ لا يوجد ملف';
-                            return;
-                        }
-                        const contentRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileFound.id}?alt=media`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        const content = await contentRes.json();
-                        if(confirm('استرجاع النسخة المحفوظة؟')) {
-                            db = content;
-                            render();
-                            document.getElementById('status').innerText = '✅ تم الاسترجاع';
-                        }
-                    }
-                } catch (err) {
-                    console.error(err);
-                    document.getElementById('status').innerText = '❌ خطأ في العملية';
-                    alert('صار خطأ بالاتصال، جرب مرة ثانية');
-                }
-            }
+        appData.transactions.unshift({
+            id: Date.now(),
+            date: new Date().toISOString(),
+            desc, amount, currency, type
         });
-        client.requestAccessToken();
+
+        saveDataLocally();
+        
+        // تصفير الحقول
+        document.getElementById('desc').value = '';
+        document.getElementById('amount').value = '';
+        showToast('تمت الإضافة محلياً');
     }
-    render();
+
+    function renderUI() {
+        const list = document.getElementById('tx-list');
+        list.innerHTML = '';
+        
+        let usd = 0, try_val = 0;
+
+        appData.transactions.forEach(tx => {
+            // حساب المجاميع
+            if (tx.currency === 'USD') {
+                usd += tx.type === 'income' ? tx.amount : -tx.amount;
+            } else {
+                try_val += tx.type === 'income' ? tx.amount : -tx.amount;
+            }
+
+            // رسم العنصر
+            const li = document.createElement('li');
+            li.className = 'tx-item';
+            li.innerHTML = `
+                <div>
+                    <strong>${tx.desc}</strong><br>
+                    <small style="color:#666">${new Date(tx.date).toLocaleDateString('ar-EG')}</small>
+                </div>
+                <div class="tx-amount ${tx.type}">
+                    ${tx.type === 'income' ? '+' : '-'}${tx.amount} ${tx.currency}
+                </div>
+            `;
+            list.appendChild(li);
+        });
+
+        document.getElementById('net-usd').innerText = `${usd.toFixed(2)} $`;
+        document.getElementById('net-try').innerText = `${try_val.toFixed(2)} ₺`;
+    }
+
+    // --- منطق Google Drive ---
+
+    // 1. تحميل المكتبات
+    window.onload = function() {
+        gapi.load('client', initializeGapiClient);
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: '', // سيتم تعيينه لاحقاً
+        });
+        gisInited = true;
+        renderUI(); // العرض الأولي
+    };
+
+    async function initializeGapiClient() {
+        await gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        checkAuthStatus();
+    }
+
+    function checkAuthStatus() {
+        if (gapiInited && gisInited) {
+            // تفعيل الأزرار جاهز
+        }
+    }
+
+    function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+            if (resp.error) throw resp;
+            document.getElementById('authBtn').style.display = 'none';
+            document.getElementById('syncBtn').style.display = 'inline-block';
+            await loadFromDrive(); // محاولة التحميل فور الاتصال
+        };
+        if (gapi.client.getToken() === null) {
+            tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+            tokenClient.requestAccessToken({prompt: ''});
+        }
+    }
+
+    // 2. دالة المزامنة الرئيسية
+    async function syncData() {
+        showToast('جاري المزامنة...', false, true);
+        try {
+            const fileId = await findFileId();
+
+            if (fileId) {
+                // تحديث (PATCH)
+                await updateFileContent(fileId, appData);
+                showToast('تم تحديث النسخة على الدرايف بنجاح');
+            } else {
+                // إنشاء (POST)
+                await createFile(appData);
+                showToast('تم إنشاء ملف جديد على الدرايف');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('خطأ في الاتصال: ' + (err.message || 'Unknown'), true);
+        } finally {
+            showToast('انتهاء العملية', false, false);
+        }
+    }
+
+    // 3. البحث عن الملف
+    async function findFileId() {
+        try {
+            const response = await gapi.client.drive.files.list({
+                'q': `name = '${FILE_NAME}' and trashed = false`,
+                'fields': 'files(id, name)',
+                'spaces': 'drive'
+            });
+            const files = response.result.files;
+            if (files && files.length > 0) {
+                return files[0].id;
+            }
+            return null;
+        } catch (err) {
+            throw new Error("فشل البحث في الملفات - تأكد من API Key");
+        }
+    }
+
+    // 4. تحميل البيانات
+    async function loadFromDrive() {
+        try {
+            const fileId = await findFileId();
+            if (!fileId) return;
+
+            const response = await gapi.client.drive.files.get({
+                fileId: fileId,
+                alt: 'media'
+            });
+
+            if (response.result && typeof response.result === 'object') {
+                appData = response.result;
+                if (!appData.transactions) appData.transactions = [];
+                saveDataLocally();
+                showToast('تم استيراد البيانات من السحابة');
+            }
+        } catch (err) {
+            showToast('خطأ أثناء جلب البيانات', true);
+        }
+    }
+
+    // 5. إنشاء ملف جديد (POST)
+    async function createFile(data) {
+        const fileContent = JSON.stringify(data);
+        const metadata = {
+            'name': FILE_NAME,
+            'mimeType': 'application/json'
+        };
+
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+            body: form
+        });
+    }
+
+    // 6. تحديث ملف (PATCH)
+    async function updateFileContent(fileId, data) {
+        const fileContent = JSON.stringify(data);
+        const metadata = { 'mimeType': 'application/json' };
+
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, {
+            method: 'PATCH',
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+            body: form
+        });
+    }
+
+    // --- أدوات مساعدة ---
+    function showToast(msg, isError = false, isLoading = false) {
+        const el = document.getElementById('status-msg');
+        el.innerText = msg;
+        el.style.display = 'block';
+        el.style.background = isError ? '#dc2626' : '#333';
+        
+        if (isLoading) document.body.classList.add('loading');
+        else document.body.classList.remove('loading');
+
+        if (!isLoading) {
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+    }
 </script>
+
 </body>
 </html>
