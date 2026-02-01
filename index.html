@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاسبة محمود</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #4f46e5;
+            --green: #10b981;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 10px;
+            color: var(--text-main);
+            user-select: none;
+        }
+
+        .container { max-width: 100%; margin: 0 auto; }
+
+        header { text-align: center; padding: 10px 0; }
+        header h2 { margin: 0; color: var(--primary); font-size: 1.5rem; }
+
+        /* الأرصدة - تصميم كروت الجوال */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .full-width { grid-column: span 2; border-bottom: 4px solid var(--primary); }
+        .stat-card h4 { margin: 0; font-size: 0.8rem; color: var(--text-sub); }
+        .stat-val { display: block; font-weight: 800; font-size: 1.2rem; margin-top: 5px; }
+        
+        .val-total { color: var(--primary); }
+        .val-in { color: var(--green); }
+        .val-out { color: var(--red); }
+        .val-try { color: var(--orange); }
+
+        /* نموذج الإدخال */
+        .entry-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        .row { display: flex; gap: 8px; margin-bottom: 10px; }
+        input, select {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Cairo';
+            font-size: 1rem;
+            outline: none;
+            background: #fff;
+        }
+
+        #addBtn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        /* البحث والسجل */
+        .search-box { margin-bottom: 10px; position: relative; }
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border-radius: 30px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+        }
+
+        .tx-list {
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .tx-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tx-info b { display: block; font-size: 0.95rem; }
+        .tx-info small { color: var(--text-sub); font-size: 0.75rem; }
+
+        .tx-amount { font-weight: 800; text-align: left; }
+        .del-btn {
+            background: #fff;
+            border: 1px solid #fee2e2;
+            color: var(--red);
+            padding: 5px 10px;
+            border-radius: 8px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        /* الأزرار السفلية */
+        .footer-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .btn-alt {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Cairo';
+        }
+
+        .drive-btn {
+            grid-column: span 2;
+            background: #4285F4;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header><h2>حسابات محمود الشخصية</h2></header>
+
+    <div class="stats-container">
+        <div class="stat-card full-width">
+            <h4>الرصيد الصافي (دولار)</h4>
+            <span class="stat-val val-total" id="netUSD">0 $</span>
+        </div>
+        <div class="stat-card">
+            <h4>قبض (دولار)</h4>
+            <span class="stat-val val-in" id="inUSD">0 $</span>
+        </div>
+        <div class="stat-card">
+            <h4>خرج (دولار)</h4>
+            <span class="stat-val val-out" id="outUSD">0 $</span>
+        </div>
+        <div class="stat-card">
+            <h4>صافي تركي</h4>
+            <span class="stat-val val-try" id="netTRY">0 ₺</span>
+        </div>
+        <div class="stat-card">
+            <h4>خرج تركي</h4>
+            <span class="stat-val val-out" id="outTRY">0 ₺</span>
+        </div>
+    </div>
+
+    <div class="entry-card">
+        <div class="row">
+            <input type="date" id="date">
+            <select id="currency">
+                <option value="USD">دولار $</option>
+                <option value="TRY">تركي ₺</option>
+            </select>
+        </div>
+        <div class="row">
+            <select id="type">
+                <option value="income">📥 دخل (قبض)</option>
+                <option value="expense">📤 خرج (صرف)</option>
+            </select>
+            <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
+        </div>
+        <div class="row">
+            <input type="text" id="desc" placeholder="بيان العملية (شو هي؟)">
+        </div>
+        <button id="addBtn" onclick="saveEntry()">تسجيل العملية</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="search" placeholder="🔍 بحث سريع..." onkeyup="refreshList()">
+    </div>
+
+    <div class="tx-list" id="mainList"></div>
+
+    <div class="footer-btns">
+        <button class="btn-alt drive-btn" onclick="alert('خيو محمود، للربط بالدرايف لازم ترفع الملف على رابط انترنت أو تبرمج Client ID. حالياً استعمل حفظ نسخة.')">☁️ مزامنة Google Drive</button>
+        <button class="btn-alt" onclick="exportJSON()">💾 حفظ نسخة</button>
+        <button class="btn-alt" onclick="document.getElementById('fileLoader').click()">📂 استعادة</button>
+        <button class="btn-alt" style="grid-column: span 2; color: var(--red);" onclick="clearAll()">🗑️ تصفير كل البيانات</button>
+        <input type="file" id="fileLoader" style="display:none" onchange="importJSON(this)">
+    </div>
+</div>
+
+<script>
+    let data = JSON.parse(localStorage.getItem('mahmoud_data_v3')) || [];
+    document.getElementById('date').valueAsDate = new Date();
+
+    function refreshList() {
+        const listBody = document.getElementById('mainList');
+        const searchTxt = document.getElementById('search').value.toLowerCase();
+        listBody.innerHTML = '';
+
+        let s = { inD:0, outD:0, netT:0, outT:0 };
+
+        // ترتيب الأحدث فوق
+        data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        data.forEach((item, i) => {
+            let val = parseFloat(item.amount);
+            
+            // الحسابات البرمجية الصحيحة
+            if(item.currency === 'USD') {
+                if(item.type === 'income') s.inD += val;
+                else s.outD += val;
+            } else {
+                if(item.type === 'income') s.netT += val;
+                else { s.netT -= val; s.outT += val; }
+            }
+
+            // نظام البحث
+            if(searchTxt && !item.desc.toLowerCase().includes(searchTxt)) return;
+
+            const isIn = item.type === 'income';
+            listBody.innerHTML += `
+                <div class="tx-item">
+                    <div class="tx-info">
+                        <b>${item.desc}</b>
+                        <small>${item.date} | ${item.currency === 'USD' ? 'دولار' : 'تركي'}</small>
+                    </div>
+                    <div style="display:flex; align-items:center">
+                        <span class="tx-amount ${isIn ? 'val-in' : 'val-out'}">
+                            ${isIn ? '+' : '-'}${val.toLocaleString()} ${item.currency === 'USD' ? '$' : '₺'}
+                        </span>
+                        <button class="del-btn" onclick="removeItem(${i})">حذف</button>
+                    </div>
+                </div>`;
+        });
+
+        // تحديث الأرقام في الشاشة
+        document.getElementById('netUSD').innerText = (s.inD - s.outD).toLocaleString() + ' $';
+        document.getElementById('inUSD').innerText = s.inD.toLocaleString() + ' $';
+        document.getElementById('outUSD').innerText = s.outD.toLocaleString() + ' $';
+        document.getElementById('netTRY').innerText = s.netT.toLocaleString() + ' ₺';
+        document.getElementById('outTRY').innerText = s.outT.toLocaleString() + ' ₺';
+
+        localStorage.setItem('mahmoud_data_v3', JSON.stringify(data));
+    }
+
+    function saveEntry() {
+        const amt = document.getElementById('amount').value;
+        const dsc = document.getElementById('desc').value;
+        
+        if(!amt || !dsc) return alert('عبي البيانات أول خيو');
+
+        data.unshift({
+            date: document.getElementById('date').value,
+            currency: document.getElementById('currency').value,
+            type: document.getElementById('type').value,
+            amount: amt,
+            desc: dsc
+        });
+
+        document.getElementById('amount').value = '';
+        document.getElementById('desc').value = '';
+        refreshList();
+    }
+
+    function removeItem(i) {
+        if(confirm('متأكد بدك تحذف العملية؟')) {
+            data.splice(i, 1);
+            refreshList();
+        }
+    }
+
+    function exportJSON() {
+        const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `حسابات_محمود_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importJSON(input) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            data = JSON.parse(e.target.result);
+            refreshList();
+            alert('تم استعادة البيانات بنجاح');
+        };
+        reader.readAsText(input.files[0]);
+    }
+
+    function clearAll() {
+        if(confirm('تحذير: هاد الخيار رح يمسح كل شي مسجله! متأكد؟')) {
+            data = [];
+            refreshList();
+        }
+    }
+
+    refreshList();
+</script>
+
+</body>
+</html>
