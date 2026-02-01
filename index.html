@@ -3,183 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محاسبة محمود</title>
+    <title>محاسبة محمود - النسخة الاحترافية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+
     <style>
         :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --primary: #4f46e5;
-            --green: #10b981;
-            --red: #ef4444;
-            --orange: #f59e0b;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
+            --bg: #f8fafc; --card: #ffffff; --primary: #4f46e5;
+            --green: #10b981; --red: #ef4444; --orange: #f59e0b;
+            --text-main: #1e293b; --text-sub: #64748b;
         }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 12px; color: var(--text-main); line-height: 1.6; }
+        .container { max-width: 500px; margin: 0 auto; }
+        header { text-align: center; padding: 10px 0 20px 0; }
+        header h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 10px;
-            color: var(--text-main);
-            user-select: none;
-        }
-
-        .container { max-width: 100%; margin: 0 auto; }
-
-        header { text-align: center; padding: 10px 0; }
-        header h2 { margin: 0; color: var(--primary); font-size: 1.5rem; }
-
-        /* الأرصدة - تصميم كروت الجوال */
-        .stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 18px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
+        /* الأرصدة المتطورة */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
         .full-width { grid-column: span 2; border-bottom: 4px solid var(--primary); }
-        .stat-card h4 { margin: 0; font-size: 0.8rem; color: var(--text-sub); }
-        .stat-val { display: block; font-weight: 800; font-size: 1.2rem; margin-top: 5px; }
-        
-        .val-total { color: var(--primary); }
-        .val-in { color: var(--green); }
-        .val-out { color: var(--red); }
-        .val-try { color: var(--orange); }
+        .stat-label { display: block; font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+        .stat-val { display: block; font-weight: 800; font-size: 1.3rem; margin-top: 5px; }
+        .val-total { color: var(--primary); } .val-in { color: var(--green); } .val-out { color: var(--red); }
 
-        /* نموذج الإدخال */
-        .entry-card {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 15px;
-        }
+        /* نموذج الإدخال - مخصص للموبايل */
+        .entry-card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .row { display: flex; gap: 10px; margin-bottom: 12px; }
+        input, select { flex: 1; padding: 14px; border: 1px solid #cbd5e1; border-radius: 14px; font-family: 'Cairo'; font-size: 1rem; outline: none; background: #fff; transition: all 0.2s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        #addBtn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+        #addBtn:active { transform: scale(0.97); }
 
-        .row { display: flex; gap: 8px; margin-bottom: 10px; }
-        input, select {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-family: 'Cairo';
-            font-size: 1rem;
-            outline: none;
-            background: #fff;
-        }
+        /* سجل العمليات */
+        .list-header { font-weight: 700; margin-bottom: 10px; padding: 0 5px; display: flex; justify-content: space-between; }
+        .tx-list { background: var(--card); border-radius: 22px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .tx-item:last-child { border-bottom: none; }
+        .tx-info b { display: block; font-size: 1rem; color: var(--text-main); }
+        .tx-info small { color: var(--text-sub); font-size: 0.8rem; }
+        .tx-amount-box { text-align: left; }
+        .tx-amount { font-weight: 800; font-size: 1.1rem; display: block; }
+        .del-btn { color: #94a3b8; border: none; background: none; padding: 5px; cursor: pointer; font-size: 1.2rem; margin-right: 10px; }
+        .del-btn:hover { color: var(--red); }
 
-        #addBtn {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-
-        /* البحث والسجل */
-        .search-box { margin-bottom: 10px; position: relative; }
-        .search-box input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border-radius: 30px;
-            box-sizing: border-box;
-            border: 1px solid #cbd5e1;
-        }
-
-        .tx-list {
-            background: var(--card);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .tx-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .tx-info b { display: block; font-size: 0.95rem; }
-        .tx-info small { color: var(--text-sub); font-size: 0.75rem; }
-
-        .tx-amount { font-weight: 800; text-align: left; }
-        .del-btn {
-            background: #fff;
-            border: 1px solid #fee2e2;
-            color: var(--red);
-            padding: 5px 10px;
-            border-radius: 8px;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        /* الأزرار السفلية */
-        .footer-btns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 20px;
-            padding-bottom: 20px;
-        }
-
-        .btn-alt {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Cairo';
-        }
-
-        .drive-btn {
-            grid-column: span 2;
-            background: #4285F4;
-            color: white;
-            border: none;
-        }
+        /* الأزرار والخدمات */
+        .footer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; padding-bottom: 30px; }
+        .btn-footer { background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 15px; font-weight: 700; cursor: pointer; font-family: 'Cairo'; font-size: 0.9rem; transition: 0.2s; }
+        .btn-drive { grid-column: span 2; background: #4285F4; color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        #syncStatus { text-align: center; font-size: 0.8rem; color: var(--text-sub); margin-top: -10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header><h2>حسابات محمود الشخصية</h2></header>
+    <header><h2>محاسبة محمود الشخصية 📁</h2></header>
 
-    <div class="stats-container">
+    <div class="stats-grid">
         <div class="stat-card full-width">
-            <h4>الرصيد الصافي (دولار)</h4>
+            <span class="stat-label">الرصيد الصافي الحالي (دولار)</span>
             <span class="stat-val val-total" id="netUSD">0 $</span>
         </div>
         <div class="stat-card">
-            <h4>قبض (دولار)</h4>
+            <span class="stat-label">إجمالي القبض ($)</span>
             <span class="stat-val val-in" id="inUSD">0 $</span>
         </div>
         <div class="stat-card">
-            <h4>خرج (دولار)</h4>
+            <span class="stat-label">إجمالي الخرج ($)</span>
             <span class="stat-val val-out" id="outUSD">0 $</span>
         </div>
-        <div class="stat-card">
-            <h4>صافي تركي</h4>
-            <span class="stat-val val-try" id="netTRY">0 ₺</span>
+        <div class="stat-card" style="border-top: 3px solid var(--orange);">
+            <span class="stat-label">صافي التركي</span>
+            <span class="stat-val" style="color:var(--orange)" id="netTRY">0 ₺</span>
         </div>
-        <div class="stat-card">
-            <h4>خرج تركي</h4>
+        <div class="stat-card" style="border-top: 3px solid var(--red);">
+            <span class="stat-label">خرج التركي</span>
             <span class="stat-val val-out" id="outTRY">0 ₺</span>
         </div>
     </div>
@@ -194,139 +93,192 @@
         </div>
         <div class="row">
             <select id="type">
-                <option value="income">📥 دخل (قبض)</option>
-                <option value="expense">📤 خرج (صرف)</option>
+                <option value="income">📥 قبض (دخل)</option>
+                <option value="expense">📤 صرف (خرج)</option>
             </select>
             <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
         </div>
-        <div class="row">
-            <input type="text" id="desc" placeholder="بيان العملية (شو هي؟)">
-        </div>
-        <button id="addBtn" onclick="saveEntry()">تسجيل العملية</button>
+        <input type="text" id="desc" placeholder="بيان العملية (مثال: مبيع بضاعة)" style="width:100%; box-sizing:border-box; margin-bottom:15px;">
+        <button id="addBtn" onclick="addNewEntry()">تسجيل وحفظ</button>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="search" placeholder="🔍 بحث سريع..." onkeyup="refreshList()">
+    <div class="list-header">
+        <span>سجل العمليات الأخير</span>
+        <span id="itemsCount" style="color:var(--text-sub); font-size:0.8rem;">0 عمليات</span>
     </div>
-
     <div class="tx-list" id="mainList"></div>
 
-    <div class="footer-btns">
-        <button class="btn-alt drive-btn" onclick="alert('936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com.')">☁️ مزامنة Google Drive</button>
-        <button class="btn-alt" onclick="exportJSON()">💾 حفظ نسخة</button>
-        <button class="btn-alt" onclick="document.getElementById('fileLoader').click()">📂 استعادة</button>
-        <button class="btn-alt" style="grid-column: span 2; color: var(--red);" onclick="clearAll()">🗑️ تصفير كل البيانات</button>
-        <input type="file" id="fileLoader" style="display:none" onchange="importJSON(this)">
+    <div class="footer-actions">
+        <button class="btn-footer btn-drive" onclick="startCloudSync()">🔄 مزامنة مع Google Drive</button>
+        <div id="syncStatus" style="grid-column: span 2;">جاهز للمزامنة</div>
+        <button class="btn-footer" onclick="saveToPhone()">💾 نسخة للهاتف</button>
+        <button class="btn-footer" onclick="document.getElementById('importFile').click()">📂 استعادة نسخة</button>
+        <input type="file" id="importFile" style="display:none" onchange="loadFromPhone(this)">
+        <button class="btn-footer" style="grid-column: span 2; color: var(--red); border-color: #fee2e2;" onclick="clearSystem()">🗑️ تصفير كافة البيانات</button>
     </div>
 </div>
 
 <script>
-    let data = JSON.parse(localStorage.getItem('mahmoud_data_v3')) || [];
+    // الإعدادات الخاصة بك
+    const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com';
+    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+    
+    let db = JSON.parse(localStorage.getItem('mahmoud_db_vFinal')) || [];
+    let googleAccessToken = null;
+
+    // تعيين تاريخ اليوم تلقائياً
     document.getElementById('date').valueAsDate = new Date();
 
-    function refreshList() {
-        const listBody = document.getElementById('mainList');
-        const searchTxt = document.getElementById('search').value.toLowerCase();
-        listBody.innerHTML = '';
+    function updateView() {
+        const list = document.getElementById('mainList');
+        list.innerHTML = '';
+        
+        let s = { inD: 0, outD: 0, inT: 0, outT: 0 };
 
-        let s = { inD:0, outD:0, netT:0, outT:0 };
+        // ترتيب الأحدث أولاً
+        db.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // ترتيب الأحدث فوق
-        data.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        data.forEach((item, i) => {
+        db.forEach((item, index) => {
             let val = parseFloat(item.amount);
             
-            // الحسابات البرمجية الصحيحة
+            // حسابات الدولار
             if(item.currency === 'USD') {
                 if(item.type === 'income') s.inD += val;
                 else s.outD += val;
-            } else {
-                if(item.type === 'income') s.netT += val;
-                else { s.netT -= val; s.outT += val; }
+            } 
+            // حسابات التركي
+            else {
+                if(item.type === 'income') s.inT += val;
+                else s.outT += val;
             }
 
-            // نظام البحث
-            if(searchTxt && !item.desc.toLowerCase().includes(searchTxt)) return;
-
-            const isIn = item.type === 'income';
-            listBody.innerHTML += `
+            // بناء القائمة
+            const isInc = item.type === 'income';
+            list.innerHTML += `
                 <div class="tx-item">
                     <div class="tx-info">
                         <b>${item.desc}</b>
                         <small>${item.date} | ${item.currency === 'USD' ? 'دولار' : 'تركي'}</small>
                     </div>
-                    <div style="display:flex; align-items:center">
-                        <span class="tx-amount ${isIn ? 'val-in' : 'val-out'}">
-                            ${isIn ? '+' : '-'}${val.toLocaleString()} ${item.currency === 'USD' ? '$' : '₺'}
+                    <div class="tx-amount-box" style="display:flex; align-items:center;">
+                        <span class="tx-amount ${isInc ? 'val-in' : 'val-out'}">
+                            ${isInc ? '+' : '-'}${val.toLocaleString()} ${item.currency === 'USD' ? '$' : '₺'}
                         </span>
-                        <button class="del-btn" onclick="removeItem(${i})">حذف</button>
+                        <button class="del-btn" onclick="deleteEntry(${index})">×</button>
                     </div>
                 </div>`;
         });
 
-        // تحديث الأرقام في الشاشة
+        // تحديث واجهة الأرقام
         document.getElementById('netUSD').innerText = (s.inD - s.outD).toLocaleString() + ' $';
         document.getElementById('inUSD').innerText = s.inD.toLocaleString() + ' $';
         document.getElementById('outUSD').innerText = s.outD.toLocaleString() + ' $';
-        document.getElementById('netTRY').innerText = s.netT.toLocaleString() + ' ₺';
+        document.getElementById('netTRY').innerText = (s.inT - s.outT).toLocaleString() + ' ₺';
         document.getElementById('outTRY').innerText = s.outT.toLocaleString() + ' ₺';
+        document.getElementById('itemsCount').innerText = db.length + ' عمليات';
 
-        localStorage.setItem('mahmoud_data_v3', JSON.stringify(data));
+        localStorage.setItem('mahmoud_db_vFinal', JSON.stringify(db));
     }
 
-    function saveEntry() {
+    function addNewEntry() {
         const amt = document.getElementById('amount').value;
-        const dsc = document.getElementById('desc').value;
-        
-        if(!amt || !dsc) return alert('عبي البيانات أول خيو');
+        const desc = document.getElementById('desc').value;
+        const date = document.getElementById('date').value;
 
-        data.unshift({
-            date: document.getElementById('date').value,
+        if(!amt || !desc || !date) {
+            alert('خيو محمود، كمل البيانات الله يرضى عليك');
+            return;
+        }
+
+        db.unshift({
+            date: date,
             currency: document.getElementById('currency').value,
             type: document.getElementById('type').value,
             amount: amt,
-            desc: dsc
+            desc: desc
         });
 
+        // تصفير الخانات
         document.getElementById('amount').value = '';
         document.getElementById('desc').value = '';
-        refreshList();
+        updateView();
     }
 
-    function removeItem(i) {
-        if(confirm('متأكد بدك تحذف العملية؟')) {
-            data.splice(i, 1);
-            refreshList();
+    function deleteEntry(i) {
+        if(confirm('بدك تحذف هي العملية؟')) {
+            db.splice(i, 1);
+            updateView();
         }
     }
 
-    function exportJSON() {
-        const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    // --- وظائف Google Drive ---
+    function startCloudSync() {
+        const client = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: (res) => {
+                if(res.access_token) {
+                    googleAccessToken = res.access_token;
+                    uploadToCloud();
+                }
+            }
+        });
+        client.requestAccessToken();
+    }
+
+    async function uploadToCloud() {
+        document.getElementById('syncStatus').innerText = '⏳ جاري الرفع للسحاب...';
+        const metadata = { name: 'محاسبة_محمود_نسخة_سحابية.json', mimeType: 'application/json' };
+        const fileData = new Blob([JSON.stringify(db)], { type: 'application/json' });
+        
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', fileData);
+
+        try {
+            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + googleAccessToken },
+                body: form
+            });
+            document.getElementById('syncStatus').innerText = '✅ تم الحفظ في الدرايف بنجاح';
+            alert('تم الحفظ في Google Drive خيو!');
+        } catch(e) {
+            document.getElementById('syncStatus').innerText = '❌ فشلت المزامنة';
+            alert('صار خطأ بالرفع، تأكد من الانترنت');
+        }
+    }
+
+    // --- النسخ الاحتياطي المحلي ---
+    function saveToPhone() {
+        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `حسابات_محمود_${new Date().toISOString().slice(0,10)}.json`;
         a.click();
     }
 
-    function importJSON(input) {
+    function loadFromPhone(input) {
         const reader = new FileReader();
         reader.onload = e => {
-            data = JSON.parse(e.target.result);
-            refreshList();
-            alert('تم استعادة البيانات بنجاح');
+            try {
+                db = JSON.parse(e.target.result);
+                updateView();
+                alert('تم استعادة البيانات بنجاح ✅');
+            } catch(e) { alert('الملف غير صالح!'); }
         };
         reader.readAsText(input.files[0]);
     }
 
-    function clearAll() {
-        if(confirm('تحذير: هاد الخيار رح يمسح كل شي مسجله! متأكد؟')) {
-            data = [];
-            refreshList();
+    function clearSystem() {
+        if(confirm('تنبيه: رح تمسح كل الحسابات نهائياً، متأكد؟')) {
+            db = [];
+            updateView();
         }
     }
 
-    refreshList();
+    // تشغيل التطبيق أول مرة
+    updateView();
 </script>
 
 </body>
