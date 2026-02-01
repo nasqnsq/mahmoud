@@ -2,334 +2,263 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبة محمود الشخصية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاسبة محمود</title>
     <style>
         :root {
             --primary: #2563eb;
-            --bg: #f3f4f6;
+            --bg: #f8fafc;
             --card: #ffffff;
-            --text: #1f2937;
-            --danger: #dc2626;
-            --success: #16a34a;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #e2e8f0;
+            --warning: #f59e0b;
         }
 
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        
-        /* البطاقات والشبكة */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .balance-usd { font-size: 1.5em; font-weight: bold; color: var(--primary); }
-        .balance-try { font-size: 1.5em; font-weight: bold; color: var(--text); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* الأزرار والنماذج */
-        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 1em; }
-        button:hover { opacity: 0.9; }
-        button.secondary { background: #9ca3af; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
-        
-        /* القائمة */
-        .tx-list { list-style: none; padding: 0; }
-        .tx-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; align-items: center; }
-        .tx-amount.income { color: var(--success); }
-        .tx-amount.expense { color: var(--danger); }
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 15px;
+            line-height: 1.5;
+        }
 
-        /* التنبيهات */
-        #status-msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 20px; background: #333; color: white; display: none; z-index: 1000; }
-        .loading { opacity: 0.5; pointer-events: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header h2 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .stat-label { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 5px; }
+        .stat-value { font-size: 1.1rem; font-weight: bold; }
+        .stat-value.usd { color: var(--primary); }
+
+        .form-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; }
+        input, select { width: 100%; padding: 12px 15px; margin-bottom: 12px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 16px; background: #fdfdfd; }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-sync { background: var(--success); color: white; margin-top: 10px; }
+        .btn-ghost { background: #f1f5f9; color: var(--text-sub); padding: 8px 15px; width: auto; font-size: 0.8rem; }
+
+        .tx-item {
+            background: var(--card); margin-bottom: 10px; padding: 12px 15px; border-radius: 15px;
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);
+        }
+        .tx-info b { display: block; font-size: 0.95rem; }
+        .tx-info span { font-size: 0.75rem; color: var(--text-sub); }
+        .tx-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; }
+
+        .income { color: var(--success); }
+        .expense { color: var(--danger); }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: flex-end; z-index: 1000; }
+        .modal-content { background: white; width: 100%; padding: 25px; border-radius: 25px 25px 0 0; }
+
+        #status-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; display: none; z-index: 2000; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>📊 محاسبة محمود</h2>
-        <div>
-            <button id="authBtn" onclick="handleAuthClick()">ربط Google Drive</button>
-            <button id="syncBtn" class="secondary" onclick="syncData()" style="display: none;">مزامنة 🔄</button>
-        </div>
-    </div>
+<div id="status-msg"></div>
 
-    <div class="stats-grid">
-        <div class="card">
-            <div>الصافي (دولار)</div>
-            <div class="balance-usd" id="net-usd">0 $</div>
-        </div>
-        <div class="card">
-            <div>الصافي (ليرة)</div>
-            <div class="balance-try" id="net-try">0 ₺</div>
-        </div>
-    </div>
+<div class="header">
+    <h2>📊 محاسبتي</h2>
+    <button class="btn btn-ghost" onclick="openSettings()">⚙️ الإعدادات</button>
+</div>
 
-    <div class="card" style="margin-bottom: 20px;">
-        <h3>تسجيل عملية جديدة</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="text" id="desc" placeholder="الوصف (مثال: راتب، تسوق)">
-            <input type="number" id="amount" placeholder="المبلغ">
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <select id="currency">
-                <option value="USD">دولار ($)</option>
-                <option value="TRY">ليرة (₺)</option>
-            </select>
-            <select id="type">
-                <option value="expense">مصروف (خرج)</option>
-                <option value="income">إيراد (دخل)</option>
-            </select>
-        </div>
-        <button onclick="addTransaction()" style="width: 100%">إضافة</button>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">رصيد الدولار</div>
+        <div class="stat-value usd" id="net-usd">0.00 $</div>
     </div>
-
-    <div class="card">
-        <h3>آخر العمليات</h3>
-        <ul id="tx-list" class="tx-list"></ul>
+    <div class="stat-card">
+        <div class="stat-label">رصيد الليرة</div>
+        <div class="stat-value" id="net-try">0 ₺</div>
     </div>
 </div>
 
-<div id="status-msg"></div>
+<div class="form-card">
+    <h3 id="form-title" style="margin-top:0; font-size:1rem;">تسجيل عملية</h3>
+    <input type="hidden" id="edit-id">
+    <input type="text" id="desc" placeholder="وصف العملية">
+    <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <select id="currency">
+            <option value="USD">دولار ($)</option>
+            <option value="TRY">ليرة (₺)</option>
+        </select>
+        <select id="type">
+            <option value="income">دخل (+)</option>
+            <option value="expense">خرج (-)</option>
+        </select>
+    </div>
+    
+    <button class="btn btn-main" id="submit-btn" onclick="saveTransaction()">حفظ العملية</button>
+    <button class="btn btn-sync" onclick="syncWithGitHub()">مزامنة سحابية ☁️</button>
+</div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js" async defer></script>
+<div style="font-weight: bold; margin-bottom: 10px;">السجل الحالي</div>
+<div id="tx-list"></div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0">⚙️ إعدادات GitHub</h3>
+        <input type="password" id="gh-token" placeholder="GitHub Token">
+        <input type="text" id="gh-owner" placeholder="Username">
+        <input type="text" id="gh-repo" placeholder="Repo Name">
+        <input type="text" id="gh-path" value="data.json">
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-main" style="flex:2" onclick="saveSettings()">حفظ</button>
+            <button class="btn btn-ghost" style="flex:1" onclick="closeSettings()">إلغاء</button>
+        </div>
+    </div>
+</div>
 
 <script>
-    // --- إعدادات النظام ---
-    // تم إضافة Client ID الخاص بك هنا
-    const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com'; 
-    
-    // ⚠️ تنبيه: يجب وضع مفتاح API الخاص بك هنا لكي يعمل الكود
-    const API_KEY = 'YOUR_API_KEY_HERE'; 
-
-    const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest';
-    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-    const FILE_NAME = 'mahmoud_data_final.json';
-
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
-
-    // --- إدارة البيانات المحلية ---
     let appData = JSON.parse(localStorage.getItem('mahmoudData')) || { transactions: [] };
-
-    function saveDataLocally() {
-        localStorage.setItem('mahmoudData', JSON.stringify(appData));
-        renderUI();
-    }
-
-    function addTransaction() {
-        const desc = document.getElementById('desc').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        const currency = document.getElementById('currency').value;
-        const type = document.getElementById('type').value;
-
-        if (!desc || isNaN(amount)) {
-            showToast('الرجاء إدخال بيانات صحيحة', true);
-            return;
-        }
-
-        appData.transactions.unshift({
-            id: Date.now(),
-            date: new Date().toISOString(),
-            desc, amount, currency, type
-        });
-
-        saveDataLocally();
-        
-        // تصفير الحقول
-        document.getElementById('desc').value = '';
-        document.getElementById('amount').value = '';
-        showToast('تمت الإضافة محلياً');
-    }
+    let ghConfig = JSON.parse(localStorage.getItem('ghConfig')) || { token: '', owner: '', repo: '', path: 'data.json' };
 
     function renderUI() {
         const list = document.getElementById('tx-list');
         list.innerHTML = '';
-        
         let usd = 0, try_val = 0;
 
-        appData.transactions.forEach(tx => {
-            // حساب المجاميع
-            if (tx.currency === 'USD') {
-                usd += tx.type === 'income' ? tx.amount : -tx.amount;
-            } else {
-                try_val += tx.type === 'income' ? tx.amount : -tx.amount;
-            }
+        appData.transactions.forEach((tx, index) => {
+            if (tx.currency === 'USD') usd += (tx.type === 'income' ? tx.amount : -tx.amount);
+            else try_val += (tx.type === 'income' ? tx.amount : -tx.amount);
 
-            // رسم العنصر
-            const li = document.createElement('li');
-            li.className = 'tx-item';
-            li.innerHTML = `
-                <div>
-                    <strong>${tx.desc}</strong><br>
-                    <small style="color:#666">${new Date(tx.date).toLocaleDateString('ar-EG')}</small>
+            const div = document.createElement('div');
+            div.className = 'tx-item';
+            div.innerHTML = `
+                <div class="tx-info">
+                    <b>${tx.desc}</b>
+                    <span class="${tx.type}">${tx.type === 'income' ? 'دخل' : 'خرج'}: ${tx.amount.toLocaleString()} ${tx.currency}</span>
                 </div>
-                <div class="tx-amount ${tx.type}">
-                    ${tx.type === 'income' ? '+' : '-'}${tx.amount} ${tx.currency}
+                <div class="tx-actions">
+                    <button class="action-btn" onclick="editTx(${tx.id})">✏️</button>
+                    <button class="action-btn" onclick="deleteTx(${tx.id})">🗑️</button>
                 </div>
             `;
-            list.appendChild(li);
+            list.appendChild(div);
         });
 
         document.getElementById('net-usd').innerText = `${usd.toFixed(2)} $`;
-        document.getElementById('net-try').innerText = `${try_val.toFixed(2)} ₺`;
+        document.getElementById('net-try').innerText = `${try_val.toLocaleString()} ₺`;
     }
 
-    // --- منطق Google Drive ---
+    function saveTransaction() {
+        const id = document.getElementById('edit-id').value;
+        const desc = document.getElementById('desc').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        if (!desc || isNaN(amount)) return showToast('أكمل البيانات!', true);
 
-    // 1. تحميل المكتبات
-    window.onload = function() {
-        gapi.load('client', initializeGapiClient);
-        tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: SCOPES,
-            callback: '', // سيتم تعيينه لاحقاً
-        });
-        gisInited = true;
-        renderUI(); // العرض الأولي
-    };
-
-    async function initializeGapiClient() {
-        await gapi.client.init({
-            apiKey: API_KEY,
-            discoveryDocs: [DISCOVERY_DOC],
-        });
-        gapiInited = true;
-        checkAuthStatus();
-    }
-
-    function checkAuthStatus() {
-        if (gapiInited && gisInited) {
-            // تفعيل الأزرار جاهز
-        }
-    }
-
-    function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-            if (resp.error) throw resp;
-            document.getElementById('authBtn').style.display = 'none';
-            document.getElementById('syncBtn').style.display = 'inline-block';
-            await loadFromDrive(); // محاولة التحميل فور الاتصال
+        const newTx = {
+            id: id ? parseInt(id) : Date.now(),
+            date: new Date().toISOString(),
+            desc, amount,
+            currency: document.getElementById('currency').value,
+            type: document.getElementById('type').value
         };
-        if (gapi.client.getToken() === null) {
-            tokenClient.requestAccessToken({prompt: 'consent'});
+
+        if (id) {
+            const idx = appData.transactions.findIndex(t => t.id == id);
+            appData.transactions[idx] = newTx;
+            showToast('تم التعديل');
         } else {
-            tokenClient.requestAccessToken({prompt: ''});
+            appData.transactions.unshift(newTx);
+            showToast('تمت الإضافة');
+        }
+
+        resetForm();
+        saveAndRefresh();
+    }
+
+    function deleteTx(id) {
+        if (confirm('هل أنت متأكد من حذف هذه العملية؟')) {
+            appData.transactions = appData.transactions.filter(t => t.id !== id);
+            saveAndRefresh();
+            showToast('تم الحذف');
         }
     }
 
-    // 2. دالة المزامنة الرئيسية
-    async function syncData() {
-        showToast('جاري المزامنة...', false, true);
-        try {
-            const fileId = await findFileId();
-
-            if (fileId) {
-                // تحديث (PATCH)
-                await updateFileContent(fileId, appData);
-                showToast('تم تحديث النسخة على الدرايف بنجاح');
-            } else {
-                // إنشاء (POST)
-                await createFile(appData);
-                showToast('تم إنشاء ملف جديد على الدرايف');
-            }
-        } catch (err) {
-            console.error(err);
-            showToast('خطأ في الاتصال: ' + (err.message || 'Unknown'), true);
-        } finally {
-            showToast('انتهاء العملية', false, false);
-        }
+    function editTx(id) {
+        const tx = appData.transactions.find(t => t.id == id);
+        document.getElementById('edit-id').value = tx.id;
+        document.getElementById('desc').value = tx.desc;
+        document.getElementById('amount').value = tx.amount;
+        document.getElementById('currency').value = tx.currency;
+        document.getElementById('type').value = tx.type;
+        document.getElementById('form-title').innerText = "تعديل العملية";
+        document.getElementById('submit-btn').innerText = "تحديث الآن";
+        window.scrollTo(0,0);
     }
 
-    // 3. البحث عن الملف
-    async function findFileId() {
+    function resetForm() {
+        document.getElementById('edit-id').value = '';
+        document.getElementById('desc').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('form-title').innerText = "تسجيل عملية";
+        document.getElementById('submit-btn').innerText = "حفظ العملية";
+    }
+
+    function saveAndRefresh() {
+        localStorage.setItem('mahmoudData', JSON.stringify(appData));
+        renderUI();
+    }
+
+    // منطق GitHub
+    async function syncWithGitHub() {
+        if (!ghConfig.token) return openSettings();
+        showToast('جاري المزامنة...');
         try {
-            const response = await gapi.client.drive.files.list({
-                'q': `name = '${FILE_NAME}' and trashed = false`,
-                'fields': 'files(id, name)',
-                'spaces': 'drive'
+            const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}`;
+            const res = await fetch(url, { headers: {'Authorization': `token ${ghConfig.token}`} });
+            let sha = null;
+            if (res.ok) { const j = await res.json(); sha = j.sha; }
+            
+            const putRes = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${ghConfig.token}` },
+                body: JSON.stringify({
+                    message: "sync",
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(appData)))),
+                    sha: sha
+                })
             });
-            const files = response.result.files;
-            if (files && files.length > 0) {
-                return files[0].id;
-            }
-            return null;
-        } catch (err) {
-            throw new Error("فشل البحث في الملفات - تأكد من API Key");
-        }
+            if (putRes.ok) showToast('نجحت المزامنة ✅');
+            else throw new Error();
+        } catch (e) { showToast('خطأ في المزامنة!', true); }
     }
 
-    // 4. تحميل البيانات
-    async function loadFromDrive() {
-        try {
-            const fileId = await findFileId();
-            if (!fileId) return;
-
-            const response = await gapi.client.drive.files.get({
-                fileId: fileId,
-                alt: 'media'
-            });
-
-            if (response.result && typeof response.result === 'object') {
-                appData = response.result;
-                if (!appData.transactions) appData.transactions = [];
-                saveDataLocally();
-                showToast('تم استيراد البيانات من السحابة');
-            }
-        } catch (err) {
-            showToast('خطأ أثناء جلب البيانات', true);
-        }
-    }
-
-    // 5. إنشاء ملف جديد (POST)
-    async function createFile(data) {
-        const fileContent = JSON.stringify(data);
-        const metadata = {
-            'name': FILE_NAME,
-            'mimeType': 'application/json'
+    function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+    function saveSettings() {
+        ghConfig = {
+            token: document.getElementById('gh-token').value,
+            owner: document.getElementById('gh-owner').value,
+            repo: document.getElementById('gh-repo').value,
+            path: document.getElementById('gh-path').value
         };
-
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([fileContent], { type: 'application/json' }));
-
-        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-            method: 'POST',
-            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
-            body: form
-        });
+        localStorage.setItem('ghConfig', JSON.stringify(ghConfig));
+        closeSettings();
+        showToast('تم الحفظ');
     }
 
-    // 6. تحديث ملف (PATCH)
-    async function updateFileContent(fileId, data) {
-        const fileContent = JSON.stringify(data);
-        const metadata = { 'mimeType': 'application/json' };
-
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([fileContent], { type: 'application/json' }));
-
-        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, {
-            method: 'PATCH',
-            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
-            body: form
-        });
+    function showToast(m, e=false) {
+        const t = document.getElementById('status-msg');
+        t.innerText = m; t.style.display = 'block'; t.style.background = e ? '#ef4444' : '#2563eb';
+        setTimeout(() => t.style.display='none', 2500);
     }
 
-    // --- أدوات مساعدة ---
-    function showToast(msg, isError = false, isLoading = false) {
-        const el = document.getElementById('status-msg');
-        el.innerText = msg;
-        el.style.display = 'block';
-        el.style.background = isError ? '#dc2626' : '#333';
-        
-        if (isLoading) document.body.classList.add('loading');
-        else document.body.classList.remove('loading');
-
-        if (!isLoading) {
-            setTimeout(() => { el.style.display = 'none'; }, 3000);
-        }
-    }
+    renderUI();
 </script>
-
 </body>
 </html>
