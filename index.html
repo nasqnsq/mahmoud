@@ -3,39 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محاسبة محمود PRO</title>
+    <title>محاسبة محمود PRO - النسخة النهائية</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root { --p: #4f46e5; --g: #10b981; --r: #ef4444; --bg: #f8fafc; --card: #ffffff; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; user-select: none; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; }
         .container { max-width: 480px; margin: 0 auto; }
-        
-        /* الهيدر والأرصدة */
         .header { text-align: center; margin-bottom: 20px; }
         .header h2 { margin: 0; color: var(--p); font-weight: 800; }
-        
         .main-stats { background: linear-gradient(135deg, var(--p), #6366f1); color: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); text-align: center; margin-bottom: 15px; }
         .sub-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .stat-box { background: var(--card); padding: 15px; border-radius: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .val { display: block; font-weight: 800; font-size: 1.2rem; margin-top: 5px; }
-
-        /* نموذج الإدخال */
         .form-card { background: var(--card); padding: 20px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2ff; }
         .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        input, select { flex: 1; padding: 14px; border: 1px solid #e2e8f0; border-radius: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--p); background: #fefeff; }
+        input, select { flex: 1; padding: 14px; border: 1px solid #e2e8f0; border-radius: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; }
         .btn-add { width: 100%; background: var(--p); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
-
-        /* سجل العمليات */
         .list-container { background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
-        .item-desc b { display: block; font-size: 1rem; margin-bottom: 2px; }
-        .item-desc small { color: #94a3b8; font-size: 0.8rem; }
-        .item-amt { text-align: left; font-weight: 800; }
         .del-btn { color: #cbd5e1; background: none; border: none; font-size: 1.3rem; margin-right: 15px; cursor: pointer; }
-
-        /* أزرار السحاب */
         .cloud-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
         .btn-cloud { padding: 15px; border-radius: 15px; border: none; font-weight: 700; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
         .up { background: #4285F4; color: white; }
@@ -46,13 +33,11 @@
 <body>
 
 <div class="container">
-    <div class="header"><h2>محاسبة محمود الشخصية 📁</h2></div>
-
+    <div class="header"><h2>محاسبة محمود PRO 📁</h2></div>
     <div class="main-stats">
         <small>الصافي المتوفر (دولار)</small>
         <span class="val" id="netUSD" style="font-size: 2.2rem;">0 $</span>
     </div>
-
     <div class="sub-stats">
         <div class="stat-box">
             <small style="color:var(--g)">إجمالي القبض ($)</small>
@@ -63,28 +48,19 @@
             <span class="val" id="totalOut" style="color:var(--r)">0 $</span>
         </div>
     </div>
-
     <div class="form-card">
         <div class="input-row">
             <input type="date" id="date">
-            <select id="currency">
-                <option value="USD">دولار $</option>
-                <option value="TRY">تركي ₺</option>
-            </select>
+            <select id="currency"><option value="USD">دولار $</option><option value="TRY">تركي ₺</option></select>
         </div>
         <div class="input-row">
-            <select id="type">
-                <option value="in">📥 دخل (قبض)</option>
-                <option value="out">📤 خرج (صرف)</option>
-            </select>
+            <select id="type"><option value="in">📥 دخل (قبض)</option><option value="out">📤 خرج (صرف)</option></select>
             <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
         </div>
-        <input type="text" id="desc" placeholder="البيان (مثلاً: دفعة بضاعة)" style="width:100%; box-sizing:border-box; margin-bottom:12px;">
+        <input type="text" id="desc" placeholder="البيان..." style="width:100%; box-sizing:border-box; margin-bottom:12px;">
         <button class="btn-add" onclick="addNew()">تسجيل العملية</button>
     </div>
-
     <div class="list-container" id="mainList"></div>
-
     <div class="cloud-actions">
         <button class="btn-cloud up" onclick="sync('upload')">☁️ رفع للدرايف</button>
         <button class="btn-cloud down" onclick="sync('download')">📥 استيراد بياناتي</button>
@@ -94,39 +70,20 @@
 
 <script>
     const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com';
-    const DB_NAME = 'mahmoud_v5_pro.json';
+    const DB_NAME = 'mahmoud_data_final.json';
     let db = JSON.parse(localStorage.getItem('mahmoud_v5')) || [];
-    
     document.getElementById('date').valueAsDate = new Date();
 
     function render() {
         const list = document.getElementById('mainList');
         list.innerHTML = '';
         let s = { inD: 0, outD: 0, netT: 0 };
-
         db.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach((item, i) => {
             let v = parseFloat(item.amt);
-            if(item.cur === 'USD') {
-                (item.type === 'in') ? s.inD += v : s.outD += v;
-            } else {
-                (item.type === 'in') ? s.netT += v : s.netT -= v;
-            }
-
-            list.innerHTML += `
-                <div class="list-item">
-                    <div class="item-desc">
-                        <b>${item.desc}</b>
-                        <small>${item.date} | ${item.cur === 'USD' ? 'دولار' : 'تركي'}</small>
-                    </div>
-                    <div style="display:flex; align-items:center;">
-                        <span class="item-amt" style="color:${item.type==='in'?'var(--g)':'var(--r)'}">
-                            ${item.type==='in'?'+':'-'}${v.toLocaleString()}${item.cur==='USD'?'$':'₺'}
-                        </span>
-                        <button class="del-btn" onclick="remove(${i})">×</button>
-                    </div>
-                </div>`;
+            if(item.cur === 'USD') { (item.type === 'in') ? s.inD += v : s.outD += v; }
+            else { (item.type === 'in') ? s.netT += v : s.netT -= v; }
+            list.innerHTML += `<div class="list-item"><div class="item-desc"><b>${item.desc}</b><small>${item.date}</small></div><div style="display:flex; align-items:center;"><span class="item-amt" style="color:${item.type==='in'?'var(--g)':'var(--r)'}">${v.toLocaleString()}${item.cur==='USD'?'$':'₺'}</span><button class="del-btn" onclick="remove(${i})">×</button></div></div>`;
         });
-
         document.getElementById('netUSD').innerText = (s.inD - s.outD).toLocaleString() + ' $';
         document.getElementById('totalIn').innerText = s.inD.toLocaleString() + ' $';
         document.getElementById('totalOut').innerText = s.outD.toLocaleString() + ' $';
@@ -137,39 +94,31 @@
         const amt = document.getElementById('amount').value;
         const desc = document.getElementById('desc').value;
         if(!amt || !desc) return alert('عبي الخانات خيو!');
-        
-        db.unshift({
-            date: document.getElementById('date').value,
-            cur: document.getElementById('currency').value,
-            type: document.getElementById('type').value,
-            amt: amt,
-            desc: desc
-        });
-        
-        document.getElementById('amount').value = '';
-        document.getElementById('desc').value = '';
+        db.unshift({ date: document.getElementById('date').value, cur: document.getElementById('currency').value, type: document.getElementById('type').value, amt, desc });
+        document.getElementById('amount').value = ''; document.getElementById('desc').value = '';
         render();
     }
 
-    function remove(i) { if(confirm('حذف العملية؟')) { db.splice(i,1); render(); } }
+    function remove(i) { if(confirm('حذف؟')) { db.splice(i,1); render(); } }
 
-    // المحرك السحابي المطور
-    function sync(mode) {
-        document.getElementById('status').innerText = '🔄 جاري الاتصال بجوجل...';
+    async function sync(mode) {
+        document.getElementById('status').innerText = '🔄 جاري الاتصال...';
         const client = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
             scope: 'https://www.googleapis.com/auth/drive.file',
             callback: async (res) => {
-                if (!res.access_token) return;
+                if (!res.access_token) {
+                    document.getElementById('status').innerText = '❌ فشل الحصول على تصريح';
+                    return;
+                }
                 const token = res.access_token;
-
                 try {
-                    // 1. البحث عن الملف
-                    const search = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DB_NAME}' and trashed=false`, {
+                    // البحث عن الملف مع التأكد من وجود مصفوفة Files
+                    const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DB_NAME}' and trashed=false`, {
                         headers: { Authorization: `Bearer ${token}` }
-                    }).then(r => r.json());
-
-                    const existingFile = search.files[0];
+                    });
+                    const search = await response.json();
+                    const fileFound = (search.files && search.files.length > 0) ? search.files[0] : null;
 
                     if (mode === 'upload') {
                         const metadata = { name: DB_NAME, mimeType: 'application/json' };
@@ -181,36 +130,42 @@
                         let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
                         let method = 'POST';
 
-                        if (existingFile) {
-                            url = `https://www.googleapis.com/upload/drive/v3/files/${existingFile.id}?uploadType=multipart`;
+                        if (fileFound) {
+                            url = `https://www.googleapis.com/upload/drive/v3/files/${fileFound.id}?uploadType=multipart`;
                             method = 'PATCH';
                         }
 
-                        await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: form });
-                        document.getElementById('status').innerText = '✅ تم الحفظ سحابياً';
-                        alert('تم الرفع بنجاح!');
-                    } 
-                    else if (mode === 'download') {
-                        if (!existingFile) throw new Error('ما في ملفات سابقة!');
-                        const content = await fetch(`https://www.googleapis.com/drive/v3/files/${existingFile.id}?alt=media`, {
+                        const upRes = await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: form });
+                        if (upRes.ok) {
+                            document.getElementById('status').innerText = '✅ تم الحفظ بنجاح';
+                            alert('تم الرفع للدرايف!');
+                        } else { throw new Error('فشل الرفع'); }
+
+                    } else { // الاستيراد
+                        if (!fileFound) {
+                            alert('خيو محمود، ما في أي ملف محفوظ بالدرايف لسه!');
+                            document.getElementById('status').innerText = '⚠️ لا يوجد ملف';
+                            return;
+                        }
+                        const contentRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileFound.id}?alt=media`, {
                             headers: { Authorization: `Bearer ${token}` }
-                        }).then(r => r.json());
-                        
-                        if(confirm('لقيت نسخة قديمة، استرجاعها؟')) {
+                        });
+                        const content = await contentRes.json();
+                        if(confirm('استرجاع النسخة المحفوظة؟')) {
                             db = content;
                             render();
                             document.getElementById('status').innerText = '✅ تم الاسترجاع';
                         }
                     }
                 } catch (err) {
-                    alert('خطأ: ' + err.message);
-                    document.getElementById('status').innerText = '❌ فشلت العملية';
+                    console.error(err);
+                    document.getElementById('status').innerText = '❌ خطأ في العملية';
+                    alert('صار خطأ بالاتصال، جرب مرة ثانية');
                 }
             }
         });
         client.requestAccessToken();
     }
-
     render();
 </script>
 </body>
