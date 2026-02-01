@@ -3,283 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>محاسبة محمود - النسخة الاحترافية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <title>محاسبة محمود PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
-
     <style>
-        :root {
-            --bg: #f8fafc; --card: #ffffff; --primary: #4f46e5;
-            --green: #10b981; --red: #ef4444; --orange: #f59e0b;
-            --text-main: #1e293b; --text-sub: #64748b;
-        }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 12px; color: var(--text-main); line-height: 1.6; }
-        .container { max-width: 500px; margin: 0 auto; }
-        header { text-align: center; padding: 10px 0 20px 0; }
-        header h2 { margin: 0; color: var(--primary); font-size: 1.6rem; font-weight: 800; }
+        :root { --p: #4f46e5; --g: #10b981; --r: #ef4444; --bg: #f8fafc; --card: #ffffff; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1e293b; user-select: none; }
+        .container { max-width: 480px; margin: 0 auto; }
+        
+        /* الهيدر والأرصدة */
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h2 { margin: 0; color: var(--p); font-weight: 800; }
+        
+        .main-stats { background: linear-gradient(135deg, var(--p), #6366f1); color: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); text-align: center; margin-bottom: 15px; }
+        .sub-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .val { display: block; font-weight: 800; font-size: 1.2rem; margin-top: 5px; }
 
-        /* الأرصدة المتطورة */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 15px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e2e8f0; }
-        .full-width { grid-column: span 2; border-bottom: 4px solid var(--primary); }
-        .stat-label { display: block; font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
-        .stat-val { display: block; font-weight: 800; font-size: 1.3rem; margin-top: 5px; }
-        .val-total { color: var(--primary); } .val-in { color: var(--green); } .val-out { color: var(--red); }
-
-        /* نموذج الإدخال - مخصص للموبايل */
-        .entry-card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .row { display: flex; gap: 10px; margin-bottom: 12px; }
-        input, select { flex: 1; padding: 14px; border: 1px solid #cbd5e1; border-radius: 14px; font-family: 'Cairo'; font-size: 1rem; outline: none; background: #fff; transition: all 0.2s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        #addBtn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-        #addBtn:active { transform: scale(0.97); }
+        /* نموذج الإدخال */
+        .form-card { background: var(--card); padding: 20px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2ff; }
+        .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        input, select { flex: 1; padding: 14px; border: 1px solid #e2e8f0; border-radius: 15px; font-family: 'Cairo'; font-size: 1rem; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--p); background: #fefeff; }
+        .btn-add { width: 100%; background: var(--p); color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
 
         /* سجل العمليات */
-        .list-header { font-weight: 700; margin-bottom: 10px; padding: 0 5px; display: flex; justify-content: space-between; }
-        .tx-list { background: var(--card); border-radius: 22px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .tx-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f1f5f9; }
-        .tx-item:last-child { border-bottom: none; }
-        .tx-info b { display: block; font-size: 1rem; color: var(--text-main); }
-        .tx-info small { color: var(--text-sub); font-size: 0.8rem; }
-        .tx-amount-box { text-align: left; }
-        .tx-amount { font-weight: 800; font-size: 1.1rem; display: block; }
-        .del-btn { color: #94a3b8; border: none; background: none; padding: 5px; cursor: pointer; font-size: 1.2rem; margin-right: 10px; }
-        .del-btn:hover { color: var(--red); }
+        .list-container { background: var(--card); border-radius: 25px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; }
+        .item-desc b { display: block; font-size: 1rem; margin-bottom: 2px; }
+        .item-desc small { color: #94a3b8; font-size: 0.8rem; }
+        .item-amt { text-align: left; font-weight: 800; }
+        .del-btn { color: #cbd5e1; background: none; border: none; font-size: 1.3rem; margin-right: 15px; cursor: pointer; }
 
-        /* الأزرار والخدمات */
-        .footer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; padding-bottom: 30px; }
-        .btn-footer { background: white; border: 1px solid #e2e8f0; padding: 14px; border-radius: 15px; font-weight: 700; cursor: pointer; font-family: 'Cairo'; font-size: 0.9rem; transition: 0.2s; }
-        .btn-drive { grid-column: span 2; background: #4285F4; color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        #syncStatus { text-align: center; font-size: 0.8rem; color: var(--text-sub); margin-top: -10px; margin-bottom: 20px; }
+        /* أزرار السحاب */
+        .cloud-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
+        .btn-cloud { padding: 15px; border-radius: 15px; border: none; font-weight: 700; font-family: 'Cairo'; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
+        .up { background: #4285F4; color: white; }
+        .down { background: #34a853; color: white; }
+        #status { text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header><h2>محاسبة محمود الشخصية 📁</h2></header>
+    <div class="header"><h2>محاسبة محمود الشخصية 📁</h2></div>
 
-    <div class="stats-grid">
-        <div class="stat-card full-width">
-            <span class="stat-label">الرصيد الصافي الحالي (دولار)</span>
-            <span class="stat-val val-total" id="netUSD">0 $</span>
+    <div class="main-stats">
+        <small>الصافي المتوفر (دولار)</small>
+        <span class="val" id="netUSD" style="font-size: 2.2rem;">0 $</span>
+    </div>
+
+    <div class="sub-stats">
+        <div class="stat-box">
+            <small style="color:var(--g)">إجمالي القبض ($)</small>
+            <span class="val" id="totalIn" style="color:var(--g)">0 $</span>
         </div>
-        <div class="stat-card">
-            <span class="stat-label">إجمالي القبض ($)</span>
-            <span class="stat-val val-in" id="inUSD">0 $</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">إجمالي الخرج ($)</span>
-            <span class="stat-val val-out" id="outUSD">0 $</span>
-        </div>
-        <div class="stat-card" style="border-top: 3px solid var(--orange);">
-            <span class="stat-label">صافي التركي</span>
-            <span class="stat-val" style="color:var(--orange)" id="netTRY">0 ₺</span>
-        </div>
-        <div class="stat-card" style="border-top: 3px solid var(--red);">
-            <span class="stat-label">خرج التركي</span>
-            <span class="stat-val val-out" id="outTRY">0 ₺</span>
+        <div class="stat-box">
+            <small style="color:var(--r)">إجمالي الخرج ($)</small>
+            <span class="val" id="totalOut" style="color:var(--r)">0 $</span>
         </div>
     </div>
 
-    <div class="entry-card">
-        <div class="row">
+    <div class="form-card">
+        <div class="input-row">
             <input type="date" id="date">
             <select id="currency">
                 <option value="USD">دولار $</option>
                 <option value="TRY">تركي ₺</option>
             </select>
         </div>
-        <div class="row">
+        <div class="input-row">
             <select id="type">
-                <option value="income">📥 قبض (دخل)</option>
-                <option value="expense">📤 صرف (خرج)</option>
+                <option value="in">📥 دخل (قبض)</option>
+                <option value="out">📤 خرج (صرف)</option>
             </select>
             <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
         </div>
-        <input type="text" id="desc" placeholder="بيان العملية (مثال: مبيع بضاعة)" style="width:100%; box-sizing:border-box; margin-bottom:15px;">
-        <button id="addBtn" onclick="addNewEntry()">تسجيل وحفظ</button>
+        <input type="text" id="desc" placeholder="البيان (مثلاً: دفعة بضاعة)" style="width:100%; box-sizing:border-box; margin-bottom:12px;">
+        <button class="btn-add" onclick="addNew()">تسجيل العملية</button>
     </div>
 
-    <div class="list-header">
-        <span>سجل العمليات الأخير</span>
-        <span id="itemsCount" style="color:var(--text-sub); font-size:0.8rem;">0 عمليات</span>
-    </div>
-    <div class="tx-list" id="mainList"></div>
+    <div class="list-container" id="mainList"></div>
 
-    <div class="footer-actions">
-        <button class="btn-footer btn-drive" onclick="startCloudSync()">🔄 مزامنة مع Google Drive</button>
-        <div id="syncStatus" style="grid-column: span 2;">جاهز للمزامنة</div>
-        <button class="btn-footer" onclick="saveToPhone()">💾 نسخة للهاتف</button>
-        <button class="btn-footer" onclick="document.getElementById('importFile').click()">📂 استعادة نسخة</button>
-        <input type="file" id="importFile" style="display:none" onchange="loadFromPhone(this)">
-        <button class="btn-footer" style="grid-column: span 2; color: var(--red); border-color: #fee2e2;" onclick="clearSystem()">🗑️ تصفير كافة البيانات</button>
+    <div class="cloud-actions">
+        <button class="btn-cloud up" onclick="sync('upload')">☁️ رفع للدرايف</button>
+        <button class="btn-cloud down" onclick="sync('download')">📥 استيراد بياناتي</button>
     </div>
+    <div id="status">جاهز للمزامنة</div>
 </div>
 
 <script>
-    // الإعدادات الخاصة بك
     const CLIENT_ID = '936346921354-koe7pedt9pdiocbrhbe0id9jjc89ctpo.apps.googleusercontent.com';
-    const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+    const DB_NAME = 'mahmoud_v5_pro.json';
+    let db = JSON.parse(localStorage.getItem('mahmoud_v5')) || [];
     
-    let db = JSON.parse(localStorage.getItem('mahmoud_db_vFinal')) || [];
-    let googleAccessToken = null;
-
-    // تعيين تاريخ اليوم تلقائياً
     document.getElementById('date').valueAsDate = new Date();
 
-    function updateView() {
+    function render() {
         const list = document.getElementById('mainList');
         list.innerHTML = '';
-        
-        let s = { inD: 0, outD: 0, inT: 0, outT: 0 };
+        let s = { inD: 0, outD: 0, netT: 0 };
 
-        // ترتيب الأحدث أولاً
-        db.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        db.forEach((item, index) => {
-            let val = parseFloat(item.amount);
-            
-            // حسابات الدولار
-            if(item.currency === 'USD') {
-                if(item.type === 'income') s.inD += val;
-                else s.outD += val;
-            } 
-            // حسابات التركي
-            else {
-                if(item.type === 'income') s.inT += val;
-                else s.outT += val;
+        db.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach((item, i) => {
+            let v = parseFloat(item.amt);
+            if(item.cur === 'USD') {
+                (item.type === 'in') ? s.inD += v : s.outD += v;
+            } else {
+                (item.type === 'in') ? s.netT += v : s.netT -= v;
             }
 
-            // بناء القائمة
-            const isInc = item.type === 'income';
             list.innerHTML += `
-                <div class="tx-item">
-                    <div class="tx-info">
+                <div class="list-item">
+                    <div class="item-desc">
                         <b>${item.desc}</b>
-                        <small>${item.date} | ${item.currency === 'USD' ? 'دولار' : 'تركي'}</small>
+                        <small>${item.date} | ${item.cur === 'USD' ? 'دولار' : 'تركي'}</small>
                     </div>
-                    <div class="tx-amount-box" style="display:flex; align-items:center;">
-                        <span class="tx-amount ${isInc ? 'val-in' : 'val-out'}">
-                            ${isInc ? '+' : '-'}${val.toLocaleString()} ${item.currency === 'USD' ? '$' : '₺'}
+                    <div style="display:flex; align-items:center;">
+                        <span class="item-amt" style="color:${item.type==='in'?'var(--g)':'var(--r)'}">
+                            ${item.type==='in'?'+':'-'}${v.toLocaleString()}${item.cur==='USD'?'$':'₺'}
                         </span>
-                        <button class="del-btn" onclick="deleteEntry(${index})">×</button>
+                        <button class="del-btn" onclick="remove(${i})">×</button>
                     </div>
                 </div>`;
         });
 
-        // تحديث واجهة الأرقام
         document.getElementById('netUSD').innerText = (s.inD - s.outD).toLocaleString() + ' $';
-        document.getElementById('inUSD').innerText = s.inD.toLocaleString() + ' $';
-        document.getElementById('outUSD').innerText = s.outD.toLocaleString() + ' $';
-        document.getElementById('netTRY').innerText = (s.inT - s.outT).toLocaleString() + ' ₺';
-        document.getElementById('outTRY').innerText = s.outT.toLocaleString() + ' ₺';
-        document.getElementById('itemsCount').innerText = db.length + ' عمليات';
-
-        localStorage.setItem('mahmoud_db_vFinal', JSON.stringify(db));
+        document.getElementById('totalIn').innerText = s.inD.toLocaleString() + ' $';
+        document.getElementById('totalOut').innerText = s.outD.toLocaleString() + ' $';
+        localStorage.setItem('mahmoud_v5', JSON.stringify(db));
     }
 
-    function addNewEntry() {
+    function addNew() {
         const amt = document.getElementById('amount').value;
         const desc = document.getElementById('desc').value;
-        const date = document.getElementById('date').value;
-
-        if(!amt || !desc || !date) {
-            alert('خيو محمود، كمل البيانات الله يرضى عليك');
-            return;
-        }
-
+        if(!amt || !desc) return alert('عبي الخانات خيو!');
+        
         db.unshift({
-            date: date,
-            currency: document.getElementById('currency').value,
+            date: document.getElementById('date').value,
+            cur: document.getElementById('currency').value,
             type: document.getElementById('type').value,
-            amount: amt,
+            amt: amt,
             desc: desc
         });
-
-        // تصفير الخانات
+        
         document.getElementById('amount').value = '';
         document.getElementById('desc').value = '';
-        updateView();
+        render();
     }
 
-    function deleteEntry(i) {
-        if(confirm('بدك تحذف هي العملية؟')) {
-            db.splice(i, 1);
-            updateView();
-        }
-    }
+    function remove(i) { if(confirm('حذف العملية؟')) { db.splice(i,1); render(); } }
 
-    // --- وظائف Google Drive ---
-    function startCloudSync() {
+    // المحرك السحابي المطور
+    function sync(mode) {
+        document.getElementById('status').innerText = '🔄 جاري الاتصال بجوجل...';
         const client = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
-            scope: SCOPES,
-            callback: (res) => {
-                if(res.access_token) {
-                    googleAccessToken = res.access_token;
-                    uploadToCloud();
+            scope: 'https://www.googleapis.com/auth/drive.file',
+            callback: async (res) => {
+                if (!res.access_token) return;
+                const token = res.access_token;
+
+                try {
+                    // 1. البحث عن الملف
+                    const search = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${DB_NAME}' and trashed=false`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }).then(r => r.json());
+
+                    const existingFile = search.files[0];
+
+                    if (mode === 'upload') {
+                        const metadata = { name: DB_NAME, mimeType: 'application/json' };
+                        const fileBlob = new Blob([JSON.stringify(db)], { type: 'application/json' });
+                        const form = new FormData();
+                        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                        form.append('file', fileBlob);
+
+                        let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+                        let method = 'POST';
+
+                        if (existingFile) {
+                            url = `https://www.googleapis.com/upload/drive/v3/files/${existingFile.id}?uploadType=multipart`;
+                            method = 'PATCH';
+                        }
+
+                        await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: form });
+                        document.getElementById('status').innerText = '✅ تم الحفظ سحابياً';
+                        alert('تم الرفع بنجاح!');
+                    } 
+                    else if (mode === 'download') {
+                        if (!existingFile) throw new Error('ما في ملفات سابقة!');
+                        const content = await fetch(`https://www.googleapis.com/drive/v3/files/${existingFile.id}?alt=media`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }).then(r => r.json());
+                        
+                        if(confirm('لقيت نسخة قديمة، استرجاعها؟')) {
+                            db = content;
+                            render();
+                            document.getElementById('status').innerText = '✅ تم الاسترجاع';
+                        }
+                    }
+                } catch (err) {
+                    alert('خطأ: ' + err.message);
+                    document.getElementById('status').innerText = '❌ فشلت العملية';
                 }
             }
         });
         client.requestAccessToken();
     }
 
-    async function uploadToCloud() {
-        document.getElementById('syncStatus').innerText = '⏳ جاري الرفع للسحاب...';
-        const metadata = { name: 'محاسبة_محمود_نسخة_سحابية.json', mimeType: 'application/json' };
-        const fileData = new Blob([JSON.stringify(db)], { type: 'application/json' });
-        
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', fileData);
-
-        try {
-            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + googleAccessToken },
-                body: form
-            });
-            document.getElementById('syncStatus').innerText = '✅ تم الحفظ في الدرايف بنجاح';
-            alert('تم الحفظ في Google Drive خيو!');
-        } catch(e) {
-            document.getElementById('syncStatus').innerText = '❌ فشلت المزامنة';
-            alert('صار خطأ بالرفع، تأكد من الانترنت');
-        }
-    }
-
-    // --- النسخ الاحتياطي المحلي ---
-    function saveToPhone() {
-        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `حسابات_محمود_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-    }
-
-    function loadFromPhone(input) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            try {
-                db = JSON.parse(e.target.result);
-                updateView();
-                alert('تم استعادة البيانات بنجاح ✅');
-            } catch(e) { alert('الملف غير صالح!'); }
-        };
-        reader.readAsText(input.files[0]);
-    }
-
-    function clearSystem() {
-        if(confirm('تنبيه: رح تمسح كل الحسابات نهائياً، متأكد؟')) {
-            db = [];
-            updateView();
-        }
-    }
-
-    // تشغيل التطبيق أول مرة
-    updateView();
+    render();
 </script>
-
 </body>
 </html>
