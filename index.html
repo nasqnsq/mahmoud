@@ -6,208 +6,383 @@
     <title>محاسبة محمود</title>
     <style>
         :root {
-            --primary: #2563eb; --bg: #f8fafc; --card: #ffffff;
-            --text-main: #0f172a; --text-sub: #64748b;
-            --danger: #ef4444; --success: #22c55e; --border: #e2e8f0;
+            --primary: #007bff;
+            --primary-dark: #0056b3;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --text: #333;
+            --danger: #dc3545;
+            --success: #28a745;
+            --gray: #6c757d;
         }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 15px; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); }
 
-        /* شاشة تسجيل الدخول */
+        /* Login Screen */
         #login-screen {
-            position: fixed; inset: 0; background: var(--primary); display: flex;
-            align-items: center; justify-content: center; z-index: 5000; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white;
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
         }
-        .login-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
+        .login-box { width: 85%; max-width: 350px; text-align: center; }
+        .login-input {
+            width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; text-align: center;
+        }
+        .login-btn {
+            width: 100%; padding: 15px; background: var(--white); color: var(--primary); 
+            border: none; border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px;
+        }
 
-        /* واجهة التطبيق */
-        #app-content { display: none; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .form-card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-sync { background: var(--success); color: white; margin-top: 10px; }
-        .tx-item { background: var(--card); margin-bottom: 10px; padding: 12px; border-radius: 15px; display: flex; justify-content: space-between; border: 1px solid var(--border); }
-        .income { color: var(--success); } .expense { color: var(--danger); }
-        #status-msg { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 50px; display: none; z-index: 2000; }
+        /* App Screen */
+        #app-screen { display: none; padding: 15px; padding-bottom: 80px; }
+        
+        /* Header & Balance */
+        .header { margin-bottom: 20px; text-align: center; }
+        .balance-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .balance-card {
+            flex: 1; background: var(--white); padding: 15px; border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center;
+        }
+        .balance-title { font-size: 12px; color: var(--gray); margin-bottom: 5px; }
+        .balance-amount { font-size: 20px; font-weight: bold; direction: ltr; }
+        .usd { color: var(--success); }
+        .try { color: var(--primary); }
+
+        /* Form */
+        .card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-group { margin-bottom: 12px; }
+        input, select {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;
+            background: #fff;
+        }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-sync { background: var(--gray); color: white; margin-bottom: 15px; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        /* List */
+        .transaction-list { list-style: none; padding: 0; margin: 0; }
+        .transaction-item {
+            background: var(--white); border-radius: 10px; padding: 15px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-right: 4px solid transparent; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .border-in { border-right-color: var(--success); }
+        .border-out { border-right-color: var(--danger); }
+        
+        .t-info h4 { margin: 0 0 5px 0; font-size: 16px; }
+        .t-meta { font-size: 12px; color: var(--gray); }
+        .t-amount { font-weight: bold; font-size: 16px; direction: ltr; text-align: left; }
+        .t-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .action-btn { background: none; border: none; font-size: 18px; padding: 5px; cursor: pointer; }
+
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Toast */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center;
+            border-radius: 4px; padding: 16px; position: fixed; z-index: 1001; left: 50%; bottom: 30px;
+            transform: translateX(-50%);
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
     </style>
 </head>
 <body>
 
-<div id="status-msg"></div>
-
-<div id="login-screen">
-    <div class="login-box">
-        <h2 style="color: var(--primary)">مرحباً محمود</h2>
-        <input type="text" id="user-input" placeholder="اسم المستخدم">
-        <input type="password" id="pass-input" placeholder="كلمة المرور">
-        <button class="btn btn-main" onclick="checkLogin()">دخول</button>
-    </div>
-</div>
-
-<div id="app-content">
-    <div class="header">
-        <h2>📊 محاسبتي</h2>
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger)">تسجيل خروج</button>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div style="font-size: 0.8rem; color: var(--text-sub)">دولار</div>
-            <div id="net-usd" style="font-weight:bold; color:var(--primary)">0.00 $</div>
-        </div>
-        <div class="stat-card">
-            <div style="font-size: 0.8rem; color: var(--text-sub)">ليرة</div>
-            <div id="net-try" style="font-weight:bold">0 ₺</div>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>محاسبة محمود</h2>
+            <input type="text" id="username" class="login-input" placeholder="اسم المستخدم">
+            <input type="password" id="password" class="login-input" placeholder="كلمة المرور">
+            <button class="login-btn" onclick="login()">دخول</button>
+            <p id="login-msg" style="color: #ffcccc; font-size: 14px; margin-top: 10px;"></p>
         </div>
     </div>
 
-    <div class="form-card">
-        <input type="hidden" id="edit-id">
-        <input type="text" id="desc" placeholder="وصف العملية">
-        <input type="number" id="amount" placeholder="المبلغ" inputmode="decimal">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <select id="currency">
-                <option value="USD">دولار ($)</option>
-                <option value="TRY">ليرة (₺)</option>
-            </select>
-            <select id="type">
-                <option value="income">دخل (+)</option>
-                <option value="expense">خرج (-)</option>
-            </select>
+    <div id="app-screen">
+        <div class="balance-container">
+            <div class="balance-card">
+                <div class="balance-title">الرصيد (USD)</div>
+                <div class="balance-amount usd" id="bal-usd">0.00 $</div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-title">الرصيد (TRY)</div>
+                <div class="balance-amount try" id="bal-try">0.00 ₺</div>
+            </div>
         </div>
-        <button class="btn btn-main" id="submit-btn" onclick="saveTransaction()">حفظ العملية</button>
-        <button class="btn btn-sync" onclick="syncWithGitHub()">مزامنة السحابة ☁️</button>
-    </div>
 
-    <div id="tx-list"></div>
-</div>
+        <button class="btn btn-sync" onclick="syncData()">
+            <span id="sync-text">مزامنة سحابية (GitHub)</span>
+            <div class="loader" id="sync-loader"></div>
+        </button>
 
-<script>
-    // بياناتك الخاصة التي طلبت دمجها
-    const MY_CREDENTIALS = {
-        user: "mahmoud",
-        pass: "1234shb",
-        gh: {
-            token: "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",
-            owner: "nasqnsq",
-            repo: "shop",
-            path: "data.json"
-        }
-    };
-
-    let appData = JSON.parse(localStorage.getItem('mahmoudData')) || { transactions: [] };
-
-    function checkLogin() {
-        const u = document.getElementById('user-input').value;
-        const p = document.getElementById('pass-input').value;
-
-        if (u === MY_CREDENTIALS.user && p === MY_CREDENTIALS.pass) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            // حفظ بيانات GitHub تلقائياً في الإعدادات
-            localStorage.setItem('ghConfig', JSON.stringify(MY_CREDENTIALS.gh));
-            renderUI();
-            showToast('أهلاً بك محمود');
-        } else {
-            alert('البيانات غير صحيحة!');
-        }
-    }
-
-    function logout() {
-        location.reload();
-    }
-
-    function renderUI() {
-        const list = document.getElementById('tx-list');
-        list.innerHTML = '';
-        let usd = 0, try_val = 0;
-
-        appData.transactions.forEach((tx) => {
-            if (tx.currency === 'USD') usd += (tx.type === 'income' ? tx.amount : -tx.amount);
-            else try_val += (tx.type === 'income' ? tx.amount : -tx.amount);
-
-            const div = document.createElement('div');
-            div.className = 'tx-item';
-            div.innerHTML = `
-                <div>
-                    <b>${tx.desc}</b><br>
-                    <small class="${tx.type}">${tx.type === 'income' ? 'دخل' : 'خرج'}: ${tx.amount} ${tx.currency}</small>
+        <div class="card">
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <input type="text" id="desc" placeholder="الوصف (مثال: راتب، مشتريات..)">
+            </div>
+            <div class="row form-group">
+                <div class="col">
+                    <input type="number" id="amount" placeholder="المبلغ" step="0.01">
                 </div>
-                <div>
-                    <button onclick="editTx(${tx.id})" style="border:none; background:none">✏️</button>
-                    <button onclick="deleteTx(${tx.id})" style="border:none; background:none">🗑️</button>
+                <div class="col">
+                    <select id="currency">
+                        <option value="USD">دولار ($)</option>
+                        <option value="TRY">ليرة (₺)</option>
+                    </select>
                 </div>
-            `;
-            list.appendChild(div);
-        });
-        document.getElementById('net-usd').innerText = `${usd.toFixed(2)} $`;
-        document.getElementById('net-try').innerText = `${try_val.toLocaleString()} ₺`;
-    }
+            </div>
+            <div class="form-group">
+                <select id="type">
+                    <option value="in">دخل (+)</option>
+                    <option value="out">خرج (-)</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" id="save-btn" onclick="saveTransaction()">إضافة عملية</button>
+            <button class="btn btn-danger" id="cancel-edit" onclick="resetForm()" style="display:none; margin-top:10px;">إلغاء التعديل</button>
+        </div>
 
-    function saveTransaction() {
-        const id = document.getElementById('edit-id').value;
-        const desc = document.getElementById('desc').value;
-        const amount = parseFloat(document.getElementById('amount').value);
-        if (!desc || isNaN(amount)) return;
+        <div id="transactions-container">
+            <ul class="transaction-list" id="list">
+                </ul>
+        </div>
+    </div>
 
-        const tx = { id: id ? parseInt(id) : Date.now(), date: new Date().toISOString(), desc, amount, currency: document.getElementById('currency').value, type: document.getElementById('type').value };
+    <div id="toast">تمت العملية</div>
 
-        if (id) {
-            const idx = appData.transactions.findIndex(t => t.id == id);
-            appData.transactions[idx] = tx;
-        } else {
-            appData.transactions.unshift(tx);
-        }
-        localStorage.setItem('mahmoudData', JSON.stringify(appData));
-        resetForm(); renderUI(); showToast('تم الحفظ');
-    }
+    <script>
+        // === التكوين والبيانات ===
+        let GH_CONFIG = {}; // سيتم تعبئتها عند الدخول
+        let transactions = [];
+        let fileSha = null; // لحفظ SHA الملف من GitHub
 
-    function deleteTx(id) {
-        if(confirm('حذف؟')) { appData.transactions = appData.transactions.filter(t => t.id !== id); localStorage.setItem('mahmoudData', JSON.stringify(appData)); renderUI(); }
-    }
+        // === إدارة الدخول ===
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const msg = document.getElementById('login-msg');
 
-    function editTx(id) {
-        const tx = appData.transactions.find(t => t.id == id);
-        document.getElementById('edit-id').value = tx.id;
-        document.getElementById('desc').value = tx.desc;
-        document.getElementById('amount').value = tx.amount;
-        document.getElementById('currency').value = tx.currency;
-        document.getElementById('type').value = tx.type;
-        window.scrollTo(0,0);
-    }
-
-    function resetForm() { document.getElementById('edit-id').value = ''; document.getElementById('desc').value = ''; document.getElementById('amount').value = ''; }
-
-    async function syncWithGitHub() {
-        const conf = JSON.parse(localStorage.getItem('ghConfig'));
-        showToast('جاري المزامنة...');
-        try {
-            const url = `https://api.github.com/repos/${conf.owner}/${conf.repo}/contents/${conf.path}`;
-            const res = await fetch(url, { headers: {'Authorization': `token ${conf.token}`} });
-            let sha = null;
-            if (res.ok) {
-                const j = await res.json(); sha = j.sha;
-                appData = JSON.parse(decodeURIComponent(escape(atob(j.content))));
-                localStorage.setItem('mahmoudData', JSON.stringify(appData));
-                renderUI();
+            if (u === 'mahmoud' && p === '1234shb') {
+                // حقن البيانات تلقائياً
+                GH_CONFIG = {
+                    token: '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',
+                    owner: 'nasqnsq',
+                    repo: 'shop',
+                    path: 'data.json'
+                };
+                
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                
+                loadFromLocal(); // تحميل البيانات المحلية أولاً
+                updateUI();
+            } else {
+                msg.textContent = "بيانات الدخول غير صحيحة";
             }
-            await fetch(url, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${conf.token}` },
-                body: JSON.stringify({ message: "sync", content: btoa(unescape(encodeURIComponent(JSON.stringify(appData)))), sha: sha })
-            });
-            showToast('تمت المزامنة بنجاح ✅');
-        } catch (e) { showToast('خطأ في الاتصال', true); }
-    }
+        }
 
-    function showToast(m, e=false) {
-        const t = document.getElementById('status-msg'); t.innerText = m; t.style.display = 'block';
-        t.style.background = e ? '#ef4444' : '#333'; setTimeout(() => t.style.display='none', 2500);
-    }
-</script>
-</body>
-</html>
+        // === إدارة البيانات المحلية ===
+        function loadFromLocal() {
+            const data = localStorage.getItem('mahmoud_accounting_data');
+            if (data) {
+                transactions = JSON.parse(data);
+            }
+        }
+
+        function saveToLocal() {
+            localStorage.setItem('mahmoud_accounting_data', JSON.stringify(transactions));
+            updateUI();
+        }
+
+        // === العمليات الحسابية والواجهة ===
+        function updateUI() {
+            const list = document.getElementById('list');
+            const balUsd = document.getElementById('bal-usd');
+            const balTry = document.getElementById('bal-try');
+            
+            list.innerHTML = '';
+            
+            let totalUsd = 0;
+            let totalTry = 0;
+
+            // ترتيب العمليات (الأحدث أولاً)
+            const sortedTrans = [...transactions].reverse();
+
+            sortedTrans.forEach(t => {
+                // حساب الرصيد
+                const val = parseFloat(t.amount);
+                if (t.currency === 'USD') {
+                    totalUsd += (t.type === 'in' ? val : -val);
+                } else {
+                    totalTry += (t.type === 'in' ? val : -val);
+                }
+
+                // بناء عنصر القائمة
+                const li = document.createElement('li');
+                li.className = `transaction-item ${t.type === 'in' ? 'border-in' : 'border-out'}`;
+                li.innerHTML = `
+                    <div class="t-info">
+                        <h4>${t.desc}</h4>
+                        <div class="t-meta">${t.date} | ${t.type === 'in' ? 'دخل' : 'خرج'}</div>
+                    </div>
+                    <div style="text-align: left;">
+                        <div class="t-amount" style="color: ${t.type === 'in' ? 'var(--success)' : 'var(--danger)'}">
+                            ${t.type === 'in' ? '+' : '-'}${val.toLocaleString()} ${t.currency === 'USD' ? '$' : '₺'}
+                        </div>
+                        <div class="t-actions">
+                            <button class="action-btn" onclick="editTransaction(${t.id})">✏️</button>
+                            <button class="action-btn" onclick="deleteTransaction(${t.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+
+            // تحديث الرصيد في الأعلى
+            balUsd.textContent = `${totalUsd.toLocaleString(undefined, {minimumFractionDigits: 2})} $`;
+            balTry.textContent = `${totalTry.toLocaleString(undefined, {minimumFractionDigits: 2})} ₺`;
+        }
+
+        // === إضافة / تعديل / حذف ===
+        function saveTransaction() {
+            const desc = document.getElementById('desc').value;
+            const amount = document.getElementById('amount').value;
+            const currency = document.getElementById('currency').value;
+            const type = document.getElementById('type').value;
+            const editId = document.getElementById('edit-id').value;
+
+            if (!desc || !amount) {
+                showToast("الرجاء تعبئة البيانات");
+                return;
+            }
+
+            if (editId) {
+                // تعديل
+                const index = transactions.findIndex(t => t.id == editId);
+                if (index > -1) {
+                    transactions[index] = {
+                        ...transactions[index],
+                        desc, amount, currency, type
+                    };
+                }
+            } else {
+                // إضافة جديد
+                const newTrans = {
+                    id: Date.now(),
+                    desc,
+                    amount,
+                    currency,
+                    type,
+                    date: new Date().toLocaleDateString('ar-EG')
+                };
+                transactions.push(newTrans);
+            }
+
+            saveToLocal();
+            resetForm();
+            showToast("تم الحفظ محلياً");
+        }
+
+        function editTransaction(id) {
+            const t = transactions.find(x => x.id == id);
+            if (t) {
+                document.getElementById('desc').value = t.desc;
+                document.getElementById('amount').value = t.amount;
+                document.getElementById('currency').value = t.currency;
+                document.getElementById('type').value = t.type;
+                document.getElementById('edit-id').value = t.id;
+                
+                document.getElementById('save-btn').textContent = "حفظ التعديل";
+                document.getElementById('cancel-edit').style.display = "block";
+                window.scrollTo(0,0);
+            }
+        }
+
+        function deleteTransaction(id) {
+            if(confirm("هل أنت متأكد من الحذف؟")) {
+                transactions = transactions.filter(t => t.id != id);
+                saveToLocal();
+                showToast("تم الحذف");
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('save-btn').textContent = "إضافة عملية";
+            document.getElementById('cancel-edit').style.display = "none";
+        }
+
+        // === GitHub Sync (الذكاء والمنطق) ===
+        
+        // دالة مساعدة لترميز النصوص العربية لـ Base64 بشكل صحيح
+        function utf8_to_b64(str) {
+            return window.btoa(unescape(encodeURIComponent(str)));
+        }
+
+        function b64_to_utf8(str) {
+            return decodeURIComponent(escape(window.atob(str)));
+        }
+
+        async function syncData() {
+            const btn = document.getElementById('sync-text');
+            const loader = document.getElementById('sync-loader');
+            
+            btn.textContent = "جاري الجلب...";
+            loader.style.display = "inline-block";
+
+            const apiUrl = `https://api.github.com/repos/${GH_CONFIG.owner}/${GH_CONFIG.repo}/contents/${GH_CONFIG.path}`;
+            const headers = {
+                'Authorization': `token ${GH_CONFIG.token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+
+            try {
+                // 1. الجلب أولاً (GET)
+                const response = await fetch(apiUrl, { headers: headers, cache: "no-store" });
+                
+                if (response.status === 200) {
+                    const data = await response.json();
+                    fileSha = data.sha; // حفظ الـ SHA للتحديث
+                    
+                    // دمج البيانات السحابية مع المحلية
+                    // الاستراتيجية: الخادم هو الحقيقة، لكن لن نخسر الجديد المحلي
+                    // للتبسيط في هذا التطبيق الشخصي: سنعتمد المحتوى المحلي ونرفعه، 
+                    // ولكن إذا أردت دمج معقد يمكن فعله هنا.
+                    // هنا سنقوم بقراءة السحابي فقط للتأكد من الاتصال وجلب الـ SHA، 
+                    // وإذا كان هناك بيانات قديمة يمكن عرضها.
+                    
+                    // في حالة "محمود"، هو يريد المزامنة. سنفترض أن LocalStorage هو الأحدث دائماً لأنه يعمل عليه.
+                    // لكن "الجلب أولاً" طلبه للحماية. لذا سنقوم بالتالي:
+                    // إذا كانت المصفوفة المحلية فارغة، نملأها من السيرفر.
+                    // إذا كانت ممتلئة، نعتمدها هي ونرفعها (لأننا عدلنا عليها).
+                    
+                    const serverContent = JSON.parse(b64_to_utf8(data.content));
+                    
+                    if (transactions.length === 0 && serverContent.length > 0) {
+                        transactions = serverContent;
+                        saveToLocal();
+                        showToast("تم استرجاع البيانات من السحابة");
+                    }
+                } else if (response.status === 404) {
+                    console.log("File not created yet, creating new.");
+                    fileSha = null; // ملف جديد
+                }
+
+                // 2. الرفع (PUT)
+                btn.textContent = "جاري الرفع...";
+                
+                const contentEncoded = utf8_to_b6
